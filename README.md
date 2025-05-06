@@ -1,2 +1,96 @@
-# catalogo
-Catálogo de Maus Cheiros de Código em PowerScript
+<a name="inicio"></a>
+# Maus Cheiros de Código em PowerScript
+
+Catálogo de maus cheiros de código na linguagem PowerScript.
+
+# Sumário
+
+1. [Long Parameter List]()
+2. [Long Function]()
+3. [Duplicated Code]()
+4. [Large Class]()
+
+<a name="LongParameterList"></a>
+# Long Parameter List
+
+Esse code smell ocorre quando um método ou função recebe muitos parâmetros. Métodos com longas listas de parâmetros são difíceis de entender, propensos a erros (como a troca de ordem dos argumentos) e tornam a manutenção do código mais trabalhosa.
+Em PowerScript, que tem forte foco em manipulação de dados e eventos, esse problema pode surgir facilmente.
+
+## 🧠 Problemas causados
+
+- Dificuldade de leitura e compreensão do método.
+- Risco de erro ao passar argumentos incorretos ou na ordem errada.
+- Dificuldade para fazer alterações futuras (adicionar, remover ou reorganizar parâmetros).
+- Redução da coesão e aumento da dependência entre partes do sistema.
+
+# 🛠️ Solução/Refatoração Recomendada
+
+Aplicar a refatoração **Introduce Parameter Object**, onde cria-se uma estrutura (em PowerScript, uma structure ou class) que agrupa os parâmetros relacionados.
+Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robustez do código.
+
+## 🔎 Exemplo de Código com Long Parameter List
+
+```pascal
+function decimal of_calcular_valor(decimal preco, decimal desconto, integer quantidade, string tipoProduto)
+  decimal valor_final
+  
+  valor_final = (preco - desconto) * quantidade
+  
+  if tipoProduto = "Promocional" then
+    valor_final = valor_final * 0.9
+  end if
+  
+  return valor_final
+end function
+```
+
+Problemas no exemplo acima:
+- Quatro parâmetros distintos, o que aumenta a chance de erro.
+- Difícil de entender rapidamente qual conjunto de dados o método manipula.
+
+## ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
+
+1. Criar uma estrutura para agrupar os dados
+```pascal
+global type info_produto from structure
+  decimal preco
+  decimal desconto
+  integer quantidade
+  string tipoProduto
+end type
+```
+
+2. Refatorar o método para receber a estrutura
+```pascal
+// Método refatorado
+function decimal of_calcular_valor(Info_Produto produto)
+  decimal valor_final
+  
+  valor_final = (produto.preco - produto.desconto) * produto.quantidade
+  
+  if produto.tipoProduto = "Promocional" then
+    valor_final = valor_final * 0.9
+  end if
+  
+  return valor_final
+end function
+```
+
+3. Exemplo de chamada do método
+```pascal
+Info_Produto produto
+
+produto.preco = 100
+produto.desconto = 10
+produto.quantidade = 2
+produto.tipoProduto = "Promocional"
+
+decimal valor = of_calcular_valor(produto)
+```
+
+## 📈 Benefícios da Refatoração
+
+- Redução no número de parâmetros, facilitando a chamada do método.
+- Melhor organização dos dados relacionados.
+- Facilita a manutenção e a extensão do sistema (adicionar novos atributos ao Info_Produto, por exemplo).
+- Torna o código mais legível e menos propenso a erros.
