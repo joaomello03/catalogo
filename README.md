@@ -1,7 +1,7 @@
 <a name="inicio"></a>
 # Maus Cheiros de Código em PowerScript
 
-Catálogo de maus cheiros de código na linguagem PowerScript.
+Este catálogo apresenta e descreve os principais maus cheiros de código identificados em projetos desenvolvidos com a linguagem PowerScript. Seu objetivo é auxiliar desenvolvedores na detecção de padrões de código que podem indicar problemas de design, manutenção ou legibilidade, promovendo assim práticas mais eficientes e sustentáveis de desenvolvimento.
 
 # Sumário
 
