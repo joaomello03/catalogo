@@ -5,7 +5,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 
 # Sumário
 
-1. [Long Parameter List]()
+1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
 2. [Long Function]()
 3. [Duplicated Code]()
 4. [Large Class]()
