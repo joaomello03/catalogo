@@ -6,7 +6,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 # Sumário
 
 1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
-2. [Long Function]()
+2. [Long Function](https://github.com/joaomello03/catalogo/blob/main/README.md#long-function)
 3. [Duplicated Code]()
 4. [Large Class]()
 
@@ -94,3 +94,30 @@ decimal valor = of_calcular_valor(produto)
 - Melhor organização dos dados relacionados.
 - Facilita a manutenção e a extensão do sistema (adicionar novos atributos ao Info_Produto, por exemplo).
 - Torna o código mais legível e menos propenso a erros.
+
+<a name="LongFunction"></a>
+# Long Function
+
+Descrição
+
+## 🧠 Problemas causados
+
+Problemas causados
+
+## 🛠️ Solução/Refatoração Recomendada
+
+Solução/Refatoração Recomendada
+
+## 🔎 Exemplo de Código com Long Parameter List
+
+```pascal
+// Exemplo de Código com Long Parameter List
+```
+
+## ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
+
+Exemplo de Refatoração Aplicando Introduce Parameter Object
+
+## 📈 Benefícios da Refatoração
+
+Benefícios da Refatoração
