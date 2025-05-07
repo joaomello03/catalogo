@@ -23,7 +23,7 @@ Em PowerScript, que tem forte foco em manipulação de dados e eventos, esse pro
 - Dificuldade para fazer alterações futuras (adicionar, remover ou reorganizar parâmetros).
 - Redução da coesão e aumento da dependência entre partes do sistema.
 
-# 🛠️ Solução/Refatoração Recomendada
+## 🛠️ Solução/Refatoração Recomendada
 
 Aplicar a refatoração **Introduce Parameter Object**, onde cria-se uma estrutura (em PowerScript, uma structure ou class) que agrupa os parâmetros relacionados.
 Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robustez do código.
