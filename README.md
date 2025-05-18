@@ -31,21 +31,27 @@ Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robuste
 ## 🔎 Exemplo de Código com Long Parameter List
 
 ```pascal
-function decimal of_calcular_valor(decimal preco, decimal desconto, integer quantidade, string tipoProduto)
-  decimal valor_final
-  
-  valor_final = (preco - desconto) * quantidade
-  
-  if tipoProduto = "Promocional" then
-    valor_final = valor_final * 0.9
-  end if
-  
-  return valor_final
+function decimal of_calcular_valor(decimal preco, decimal desconto, integer quantidade, string tipoProduto, string metodoPagamento, decimal taxaAdicional)
+	decimal valor_final
+	
+	valor_final = (preco - desconto) * quantidade
+	
+	if lower(tipoProduto) = "promocional" then
+		valor_final = valor_final * 0.9
+	end if
+	
+	if lower(metodoPagamento) = "pix" then
+		valor_final = valor_final * 0.97
+	end if
+	
+	valor_final += taxaAdicional
+	
+	return valor_final
 end function
 ```
 
 Problemas no exemplo acima:
-- Quatro parâmetros distintos, o que aumenta a chance de erro.
+- Seis parâmetros distintos, o que aumenta a chance de erro.
 - Difícil de entender rapidamente qual conjunto de dados o método manipula.
 
 ## ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
@@ -53,26 +59,34 @@ Problemas no exemplo acima:
 1. Criar uma estrutura para agrupar os dados
 ```pascal
 global type info_produto from structure
-  decimal preco
-  decimal desconto
-  integer quantidade
-  string tipoProduto
+	decimal preco
+	decimal desconto
+	integer quantidade
+	string tipoProduto
+	string metodoPagamento
+	decimal taxaAdicional
 end type
 ```
 
 2. Refatorar o método para receber a estrutura
 ```pascal
 // Método refatorado
-function decimal of_calcular_valor(Info_Produto produto)
-  decimal valor_final
-  
-  valor_final = (produto.preco - produto.desconto) * produto.quantidade
-  
-  if produto.tipoProduto = "Promocional" then
-    valor_final = valor_final * 0.9
-  end if
-  
-  return valor_final
+function decimal of_calcular_valor(info_produto produto)
+	decimal valor_final
+
+	valor_final = (produto.preco - produto.desconto) * produto.quantidade
+
+	if lower(produto.tipoProduto) = "promocional" then
+		valor_final = valor_final * 0.9
+	end if
+
+	if lower(produto.metodoPagamento) = "pix" then
+		valor_final = valor_final * 0.97
+	end if
+
+	valor_final += produto.taxaAdicional
+
+	return valor_final
 end function
 ```
 
@@ -84,6 +98,8 @@ produto.preco = 100
 produto.desconto = 10
 produto.quantidade = 2
 produto.tipoProduto = "Promocional"
+produto.metodoPagamento = "PIX"
+produto.taxaAdicional = 1
 
 decimal valor = of_calcular_valor(produto)
 ```
