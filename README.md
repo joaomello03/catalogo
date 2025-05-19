@@ -32,21 +32,21 @@ Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robuste
 
 ```pascal
 function decimal of_calcular_valor(decimal preco, decimal desconto, integer quantidade, string tipoProduto, string metodoPagamento, decimal taxaAdicional)
-	decimal valor_final
-	
-	valor_final = (preco - desconto) * quantidade
-	
-	if lower(tipoProduto) = "promocional" then
-		valor_final = valor_final * 0.9
-	end if
-	
-	if lower(metodoPagamento) = "pix" then
-		valor_final = valor_final * 0.97
-	end if
-	
-	valor_final += taxaAdicional
-	
-	return valor_final
+    decimal valor_final
+
+    valor_final = (preco - desconto) * quantidade
+
+    if lower(tipoProduto) = "promocional" then
+        valor_final = valor_final * 0.9
+    end if
+
+    if lower(metodoPagamento) = "pix" then
+        valor_final = valor_final * 0.97
+    end if
+
+    valor_final += taxaAdicional
+
+    return valor_final
 end function
 ```
 
@@ -59,12 +59,12 @@ Problemas no exemplo acima:
 1. Criar uma estrutura para agrupar os dados
 ```pascal
 global type info_produto from structure
-	decimal preco
-	decimal desconto
-	integer quantidade
-	string tipoProduto
-	string metodoPagamento
-	decimal taxaAdicional
+    decimal preco
+    decimal desconto
+    integer quantidade
+    string tipoProduto
+    string metodoPagamento
+    decimal taxaAdicional
 end type
 ```
 
@@ -72,21 +72,21 @@ end type
 ```pascal
 // Método refatorado
 function decimal of_calcular_valor(info_produto produto)
-	decimal valor_final
+    decimal valor_final
 
-	valor_final = (produto.preco - produto.desconto) * produto.quantidade
+    valor_final = (produto.preco - produto.desconto) * produto.quantidade
 
-	if lower(produto.tipoProduto) = "promocional" then
-		valor_final = valor_final * 0.9
-	end if
+    if lower(produto.tipoProduto) = "promocional" then
+        valor_final = valor_final * 0.9
+    end if
 
-	if lower(produto.metodoPagamento) = "pix" then
-		valor_final = valor_final * 0.97
-	end if
+    if lower(produto.metodoPagamento) = "pix" then
+        valor_final = valor_final * 0.97
+    end if
 
-	valor_final += produto.taxaAdicional
+    valor_final += produto.taxaAdicional
 
-	return valor_final
+    return valor_final
 end function
 ```
 
