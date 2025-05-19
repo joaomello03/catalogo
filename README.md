@@ -116,29 +116,132 @@ decimal valor = of_calcular_valor(produto)
 <a name="LongFunction"></a>
 ## Long Function
 
-Descrição
+Esse code smell ocorre quando uma função ou método realiza tarefas demais e possui muitas linhas de código. Em PowerScript, esse problema é muito comum em eventos de janelas (como clicked, constructor, open) ou funções que realizam múltiplas etapas de lógica de negócio e interface em um único bloco.
+Funções longas tendem a misturar níveis de abstração, como acesso a banco de dados, validações, lógica de interface e cálculos em um só lugar, dificultando a leitura, testes e manutenção.
 
 ### 🧠 Problemas causados
 
-Problemas causados
+- Redução da legibilidade: difícil de entender o que a função realmente faz.
+- Dificuldade de reutilização: partes úteis do código ficam "presas" dentro da função.
+- Aumento do risco de erro: pequenas alterações em um ponto podem afetar outras partes.
+- Testabilidade comprometida: difícil testar partes específicas do comportamento.
+- Viola o princípio da responsabilidade única (SRP – Single Responsibility Principle).
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Solução/Refatoração Recomendada
+A técnica mais apropriada para esse smell é a Extract Method:
+- Consiste em extrair blocos de código logicamente coesos para métodos auxiliares com nomes claros e descritivos.
 
-### 🔎 Exemplo de Código com Long Parameter List
+Isso reduz o tamanho da função original, melhora a modularidade e facilita a leitura e o reuso.
+Em PowerScript, pode-se criar functions, object functions, ou user events para separar responsabilidades.
+
+### 🔎 Exemplo de Código com Long Function
 
 ```pascal
-// Exemplo de Código com Long Parameter List
+// Evento clicked de um botão com lógica excessiva
+subroutine clicked()
+    string nome
+    integer idade
+    decimal salario
+    decimal imposto
+
+    // Captura de dados
+    nome = sle_nome.text
+    idade = integer(sle_idade.text)
+    salario = decimal(sle_salario.text)
+
+    // Validação
+    if nome = "" or idade <= 0 or salario <= 0 then
+        messagebox("Erro", "Dados inválidos.")
+        return
+    end if
+
+    // Cálculo de imposto
+    if salario > 5000 then
+        imposto = salario * 0.2
+    else
+        imposto = salario * 0.1
+    end if
+
+    // Atualização do display
+    sle_resultado.text = "Imposto: " + string(imposto)
+
+    // Grava no banco
+    insert into funcionario
+        (nome, idade, salario, imposto)
+    values
+        (:nome, :idade, :salario, :imposto)
+end subroutine
 ```
 
-### ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
+Função com múltiplas responsabilidades: captura de dados, validação, cálculo, atualização de UI e acesso ao banco de dados — tudo junto.
 
-Exemplo de Refatoração Aplicando Introduce Parameter Object
+### ✨ Exemplo de Refatoração Aplicando Extract Method
+
+```pascal
+subroutine clicked()
+    string nome
+    integer idade
+    decimal salario
+
+    if not of_captura_dados(nome, idade, salario) then return
+    if not of_valida_dados(nome, idade, salario) then return
+
+    decimal imposto = of_calcula_imposto(salario)
+
+    of_exibe_resultado(imposto)
+    of_salva_dados(nome, idade, salario, imposto)
+end subroutine
+
+// Métodos auxiliares
+boolean function of_captura_dados(ref string nome, ref integer idade, ref decimal salario)
+    nome = sle_nome.text
+    idade = integer(sle_idade.text)
+    salario = decimal(sle_salario.text)
+
+    return true
+end function
+
+boolean function of_valida_dados(string nome, integer idade, decimal salario)
+    if nome = "" or idade <= 0 or salario <= 0 then
+        messagebox("Erro", "Dados inválidos.")
+        return false
+    end if
+
+    return true
+end function
+
+decimal function of_calcula_imposto(decimal salario)
+    if salario > 5000 then
+        return salario * 0.2
+    else
+        return salario * 0.1
+    end if
+end function
+
+subroutine of_exibe_resultado(decimal imposto)
+    sle_resultado.text = "Imposto: " + string(imposto)
+end subroutine
+
+subroutine of_salva_dados(string nome, integer idade, decimal salario, decimal imposto)
+    insert into funcionario
+        (nome, idade, salario, imposto)
+    values
+        (:nome, :idade, :salario, :imposto)
+end subroutine
+```
+
+Cada responsabilidade agora está separada em funções coesas e reutilizáveis. O evento clicked() virou apenas um orquestrador claro e legível.
 
 ### 📈 Benefícios da Refatoração
 
-Benefícios da Refatoração
+- Leitura facilitada: agora a função principal descreve claramente o fluxo do processo.
+- Responsabilidades isoladas: cada parte da lógica está encapsulada.
+- Melhor manutenção: é mais fácil corrigir ou estender partes específicas.
+- Reuso de lógica: funções como of_calcula_imposto podem ser reaproveitadas em outros lugares.
+- Testabilidade aumentada: agora é possível escrever testes para funções menores isoladamente.
+
+[Voltar ao início](#sumário)
 
 <!-- Links -->
 [Catalogo PowerScript]: https://github.com/joaomello03/catalogo
