@@ -13,7 +13,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 <a name="LongParameterList"></a>
 ## Long Parameter List
 
-Esse code smell ocorre quando um método ou função recebe muitos parâmetros. Métodos com longas listas de parâmetros são difíceis de entender, propensos a erros (como a troca de ordem dos argumentos) e tornam a manutenção do código mais trabalhosa.
+Esse mau cheiro ocorre quando um método ou função recebe muitos parâmetros. Métodos com longas listas de parâmetros são difíceis de entender, propensos a erros (como a troca de ordem dos argumentos) e tornam a manutenção do código mais trabalhosa.
 Em PowerScript, que tem forte foco em manipulação de dados e eventos, esse problema pode surgir facilmente.
 
 ### 🧠 Problemas causados
@@ -25,7 +25,7 @@ Em PowerScript, que tem forte foco em manipulação de dados e eventos, esse pro
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Aplicar a refatoração **Introduce Parameter Object**, onde cria-se uma estrutura (em PowerScript, uma structure ou class) que agrupa os parâmetros relacionados.
+Aplicar a refatoração **Introduce Parameter Object**, onde cria-se uma estrutura (em PowerScript, uma _structure_ ou _class_) que agrupa os parâmetros relacionados.
 Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robustez do código.
 
 ### 🔎 Exemplo de Código com Long Parameter List
@@ -54,7 +54,7 @@ Problemas no exemplo acima:
 - Seis parâmetros distintos, o que aumenta a chance de erro.
 - Difícil de entender rapidamente qual conjunto de dados o método manipula.
 
-### ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
+### ✨ Exemplo de Refatoração Aplicando **Introduce Parameter Object**
 
 1. Criar uma estrutura para agrupar os dados
 ```pascal
@@ -108,7 +108,7 @@ decimal valor = of_calcular_valor(produto)
 
 - Redução no número de parâmetros, facilitando a chamada do método.
 - Melhor organização dos dados relacionados.
-- Facilita a manutenção e a extensão do sistema (adicionar novos atributos ao Info_Produto, por exemplo).
+- Facilita a manutenção e a extensão do sistema (adicionar novos atributos ao _Info_Produto_, por exemplo).
 - Torna o código mais legível e menos propenso a erros.
 
 [Voltar ao início](#sumário)
@@ -116,7 +116,7 @@ decimal valor = of_calcular_valor(produto)
 <a name="LongFunction"></a>
 ## Long Function
 
-Esse code smell ocorre quando uma função ou método realiza tarefas demais e possui muitas linhas de código. Em PowerScript, esse problema é muito comum em eventos de janelas (como clicked, constructor, open) ou funções que realizam múltiplas etapas de lógica de negócio e interface em um único bloco.
+Esse mau cheiro ocorre quando uma função ou método realiza tarefas demais e possui muitas linhas de código. Em PowerScript, esse problema é muito comum em eventos de janelas (como _clicked, constructor, open_) ou funções que realizam múltiplas etapas de lógica de negócio e interface em um único bloco.
 Funções longas tendem a misturar níveis de abstração, como acesso a banco de dados, validações, lógica de interface e cálculos em um só lugar, dificultando a leitura, testes e manutenção.
 
 ### 🧠 Problemas causados
@@ -125,15 +125,15 @@ Funções longas tendem a misturar níveis de abstração, como acesso a banco d
 - Dificuldade de reutilização: partes úteis do código ficam "presas" dentro da função.
 - Aumento do risco de erro: pequenas alterações em um ponto podem afetar outras partes.
 - Testabilidade comprometida: difícil testar partes específicas do comportamento.
-- Viola o princípio da responsabilidade única (SRP – Single Responsibility Principle).
+- Viola o princípio da responsabilidade única (SRP – _Single Responsibility Principle_).
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-A técnica mais apropriada para esse smell é a Extract Method:
+A técnica mais apropriada para esse mau cheiro é a **Extract Method**:
 - Consiste em extrair blocos de código logicamente coesos para métodos auxiliares com nomes claros e descritivos.
 
 Isso reduz o tamanho da função original, melhora a modularidade e facilita a leitura e o reuso.
-Em PowerScript, pode-se criar functions, object functions, ou user events para separar responsabilidades.
+Em PowerScript, pode-se criar _functions, object functions_, ou _user events_ para separar responsabilidades.
 
 ### 🔎 Exemplo de Código com Long Function
 
@@ -176,7 +176,7 @@ end subroutine
 
 Função com múltiplas responsabilidades: captura de dados, validação, cálculo, atualização de UI e acesso ao banco de dados — tudo junto.
 
-### ✨ Exemplo de Refatoração Aplicando Extract Method
+### ✨ Exemplo de Refatoração Aplicando **Extract Method**
 
 ```pascal
 subroutine clicked()
@@ -231,14 +231,14 @@ subroutine of_salva_dados(string nome, integer idade, decimal salario, decimal i
 end subroutine
 ```
 
-Cada responsabilidade agora está separada em funções coesas e reutilizáveis. O evento clicked() virou apenas um orquestrador claro e legível.
+Cada responsabilidade agora está separada em funções coesas e reutilizáveis. O evento _clicked()_ virou apenas um orquestrador claro e legível.
 
 ### 📈 Benefícios da Refatoração
 
 - Leitura facilitada: agora a função principal descreve claramente o fluxo do processo.
 - Responsabilidades isoladas: cada parte da lógica está encapsulada.
 - Melhor manutenção: é mais fácil corrigir ou estender partes específicas.
-- Reuso de lógica: funções como of_calcula_imposto podem ser reaproveitadas em outros lugares.
+- Reuso de lógica: funções como _of_calcula_imposto_ podem ser reaproveitadas em outros lugares.
 - Testabilidade aumentada: agora é possível escrever testes para funções menores isoladamente.
 
 [Voltar ao início](#sumário)
