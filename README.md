@@ -7,8 +7,16 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 
 1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
 2. [Long Function](https://github.com/joaomello03/catalogo/blob/main/README.md#long-function)
-3. [Duplicated Code]()
-4. [Large Class]()
+3. [Duplicated Code](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicated-code)
+4. [Large Class](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
+5. [Feature Envy](https://github.com/joaomello03/catalogo/blob/main/README.md#feature-envy)
+6. [Message Chains](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
+7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
+8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
+9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
+10. [Repeated Switches](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
+
+---
 
 <a name="LongParameterList"></a>
 ## Long Parameter List
@@ -54,7 +62,7 @@ Problemas no exemplo acima:
 - Seis parâmetros distintos, o que aumenta a chance de erro.
 - Difícil de entender rapidamente qual conjunto de dados o método manipula.
 
-### ✨ Exemplo de Refatoração Aplicando **Introduce Parameter Object**
+### ✨ Exemplo de Refatoração Aplicando Introduce Parameter Object
 
 1. Criar uma estrutura para agrupar os dados
 ```pascal
@@ -112,6 +120,8 @@ decimal valor = of_calcular_valor(produto)
 - Torna o código mais legível e menos propenso a erros.
 
 [Voltar ao início](#sumário)
+
+---
 
 <a name="LongFunction"></a>
 ## Long Function
@@ -176,7 +186,7 @@ end subroutine
 
 Função com múltiplas responsabilidades: captura de dados, validação, cálculo, atualização de UI e acesso ao banco de dados — tudo junto.
 
-### ✨ Exemplo de Refatoração Aplicando **Extract Method**
+### ✨ Exemplo de Refatoração Aplicando Extract Method
 
 ```pascal
 subroutine clicked()
@@ -240,6 +250,365 @@ Cada responsabilidade agora está separada em funções coesas e reutilizáveis.
 - Melhor manutenção: é mais fácil corrigir ou estender partes específicas.
 - Reuso de lógica: funções como _of_calcula_imposto_ podem ser reaproveitadas em outros lugares.
 - Testabilidade aumentada: agora é possível escrever testes para funções menores isoladamente.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="duplicated-code"></a>
+## Duplicated Code
+
+Esse mau cheiro ocorre quando blocos de código idênticos ou muito semelhantes aparecem em múltiplos lugares. Isso é comum em sistemas legados PowerScript, onde lógicas semelhantes são copiadas entre janelas, scripts ou funções.
+
+### 🧠 Problemas causados
+
+- Dificulta manutenção: alterações precisam ser replicadas manualmente.
+- Aumenta o risco de inconsistências.
+- Redundância desnecessária.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Extract Method** – crie uma função reutilizável.
+
+### 🔎 Exemplo com Duplicated Code
+
+```pascal
+decimal total1 = (preco - desconto) * quantidade
+total1 += taxa
+
+decimal total2 = (preco - desconto) * quantidade
+total2 += taxa
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+function decimal of_calcula_total(decimal preco, decimal desconto, integer quantidade, decimal taxa)
+    return ((preco - desconto) * quantidade) + taxa
+end function
+
+decimal total1 = of_calcula_total(preco, desconto, quantidade, taxa)
+decimal total2 = of_calcula_total(preco, desconto, quantidade, taxa)
+```
+
+### 📈 Benefícios da Refatoração
+
+- Centraliza a lógica.
+- Facilita manutenção.
+- Reduz erros.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="large-class"></a>
+## Large Class
+
+Classes com responsabilidades demais, comum em janelas PowerScript com lógica de UI, banco de dados e regras de negócio misturadas.
+
+### 🧠 Problemas causados
+
+- Viola o princípio da responsabilidade única (SRP – _Single Responsibility Principle_).
+- Código difícil de entender, testar e manter.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Extract Class** – mover responsabilidades para objetos auxiliares.
+
+### 🔎 Exemplo com Large Class
+
+```pascal
+window w_funcionario
+    string nome
+    integer idade
+    decimal salario
+    subroutine calcular_salario()
+    subroutine validar_campos()
+    subroutine salvar_dados()
+end window
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+nonvisualobject nvo_funcionario
+    string nome
+    integer idade
+    decimal salario
+    function boolean validar()
+    function decimal calcular_salario()
+end object
+
+window w_funcionario
+    nvo_funcionario funcionario
+end window
+```
+
+### 📈 Benefícios da Refatoração
+
+- Redução da complexidade.
+- Código mais organizado e testável.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="feature-envy"></a>
+## Feature Envy
+
+Métodos que utilizam mais dados de outro objeto do que da própria classe.
+
+### 🧠 Problemas causados
+
+- Aumenta o acoplamento.
+- Reduz a coesão.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Move Method** – mover método para a classe que contém os dados.
+
+### 🔎 Exemplo com Feature Envy
+
+```pascal
+function decimal of_calcular_bonus(empregado e)
+    if e.salario > 5000 then
+        return e.salario * 0.1
+    else
+        return e.salario * 0.05
+    end if
+end function
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+function decimal of_calcular_bonus()
+    if this.salario > 5000 then
+        return this.salario * 0.1
+    else
+        return this.salario * 0.05
+    end if
+end function
+```
+
+### 📈 Benefícios da Refatoração
+
+- Reduz dependência externa.
+- Aumenta coesão e encapsulamento.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="message-chains"></a>
+## Message Chains
+
+Cadeia longa de chamadas entre objetos (ex: `a().b().c()`).
+
+### 🧠 Problemas causados
+
+- Alta fragilidade a mudanças internas.
+- Código difícil de entender.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Hide Delegate** – encapsular a cadeia em um método intermediário.
+
+### 🔎 Exemplo com Message Chains
+
+```pascal
+string cidade = this.of_get_empregado().of_get_endereco().of_get_cidade()
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+function string of_get_cidade_empregado()
+    return this.empregado.of_get_endereco().of_get_cidade()
+end function
+```
+
+### 📈 Benefícios da Refatoração
+
+- Reduz acoplamento.
+- Facilita refatorações futuras.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="shotgun-surgery"></a>
+## Shotgun Surgery
+
+Uma única mudança requer alterações em vários locais.
+
+### 🧠 Problemas causados
+
+- Aumenta o risco de erros.
+- Baixa coesão.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Move Method** ou **Extract Method** – centralizar lógica repetida.
+
+### 🔎 Exemplo com Shotgun Surgery
+
+```pascal
+if metodo_pagamento = "PIX" then
+    desconto = valor * 0.05
+end if
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+function decimal of_calcular_desconto(string metodo, decimal valor)
+    if lower(metodo) = "pix" then
+        return valor * 0.05
+    end if
+    return 0
+end function
+```
+
+### 📈 Benefícios da Refatoração
+
+- Centralização da lógica.
+- Redução da duplicação.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="primitive-obsession"></a>
+## Primitive Obsession
+
+Uso excessivo de tipos primitivos ao invés de abstrações.
+
+### 🧠 Problemas causados
+
+- Repetição de validações.
+- Redução da expressividade.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Introduce Value Object** – agrupar dados relacionados em estruturas.
+
+### 🔎 Exemplo com Primitive Obsession
+
+```pascal
+function boolean of_verificar_cliente(string nome, string cpf, string telefone)
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+global type cliente_info from structure
+    string nome
+    string cpf
+    string telefone
+end type
+
+function boolean of_verificar_cliente(cliente_info cli)
+```
+
+### 📈 Benefícios da Refatoração
+
+- Código mais legível e reutilizável.
+- Parâmetros agrupados com significado.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="data-class"></a>
+## Data Class
+
+Classes que apenas armazenam dados e não possuem comportamento.
+
+### 🧠 Problemas causados
+
+- Falta de encapsulamento.
+- Tendência a lógicas dispersas.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Adicionar comportamentos que pertençam aos dados.
+
+### 🔎 Exemplo com Data Class
+
+```pascal
+structure cliente
+    string nome
+    string email
+end structure
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+nonvisualobject nvo_cliente
+    string nome
+    string email
+
+    function boolean validar_email()
+end object
+```
+
+### 📈 Benefícios da Refatoração
+
+- Melhora o design orientado a objetos.
+- Encapsula lógica.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="repeated-switches"></a>
+## Repeated Switches
+
+Repetição da mesma estrutura `switch` ou `case` em vários lugares.
+
+### 🧠 Problemas causados
+
+- Duplicação de código.
+- Dificuldade para manutenção.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+**Replace Conditional with Polymorphism** ou **Strategy Pattern**.
+
+### 🔎 Exemplo com Repeated Switches
+
+```pascal
+choose case tipo_usuario
+case "admin"
+    of_permissao_admin()
+case "cliente"
+    of_permissao_cliente()
+end choose
+
+choose case tipo_usuario
+case "admin"
+    of_log_admin()
+case "cliente"
+    of_log_cliente()
+end choose
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+nvo_usuario usuario
+usuario.tipo = "admin"
+usuario.executar_permissao()
+usuario.registrar_log()
+```
+
+### 📈 Benefícios da Refatoração
+
+- Reduz duplicação.
+- Permite extensão fácil.
+- Código mais organizado.
 
 [Voltar ao início](#sumário)
 
