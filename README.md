@@ -482,39 +482,103 @@ end function
 <a name="primitive-obsession"></a>
 ## Primitive Obsession
 
-Uso excessivo de tipos primitivos ao invés de abstrações.
+Primitive Obsession é um mau cheiro de código que ocorre quando usamos tipos primitivos (_string, integer, decimal_, etc.) de forma excessiva ou inadequada, em vez de abstrações mais expressivas. Isso inclui:
+- Passar muitos primitivos como parâmetros que poderiam ser agrupados.
+- Representar conceitos complexos com apenas uma string ou integer.
+- Repetir validações ou formatações em vários lugares para o mesmo tipo de dado.
 
 ### 🧠 Problemas causados
 
-- Repetição de validações.
-- Redução da expressividade.
+- Repetição de código: validações ou cálculos relacionados ao mesmo tipo de dado aparecem em vários pontos.
+- Dificuldade de manutenção: qualquer mudança no comportamento exige alterações em múltiplos lugares.
+- Acoplamento excessivo a tipos básicos: o código se torna mais rígido e menos reutilizável.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Introduce Value Object** – agrupar dados relacionados em estruturas.
+Aplicar a refatoração **Replace Primitive with Value Object**, que consiste em substituir um ou mais campos primitivos por um objeto específico que represente o conceito, encapsulando os dados e as operações relacionadas.
+Em PowerScript, use um nonvisualobject ou para representar um conceito de domínio (ex: ClienteInfo, Endereco, CPF, Produto), e mova validações, formatações e outras operações para dentro dele.
 
-### 🔎 Exemplo com Primitive Obsession
+### 🔎 Exemplo de Código com Primitive Obsession
 
 ```pascal
-function boolean of_verificar_cliente(string nome, string cpf, string telefone)
+// Função de verificação com múltiplos parâmetros primitivos
+public function boolean of_cadastrar_cliente(string nome, string email, string cpf, string telefone)
+    if nome = "" or pos(email, "@") = 0 or len(cpf) <> 11 then
+        return false
+    end if
+
+    ...
+
+    return true
+end function
 ```
 
-### ✨ Exemplo Refatorado
+Problemas no exemplo acima:
+- Muitos parâmetros primitivos soltos.
+- Validações específicas espalhadas.
 
+### ✨ Exemplo de Refatoração Aplicando Replace Primitive with Value Object
+
+1. Criar um objeto _nv_cliente_
 ```pascal
-global type cliente_info from structure
+global type nv_cliente from nonvisualobject
     string nome
+    string email
     string cpf
     string telefone
-end type
 
-function boolean of_verificar_cliente(cliente_info cli)
+    public function boolean of_validar()
+        if this.nome = "" then return false
+        if pos(this.email, "@") = 0 then return false
+        if len(this.cpf) <> 11 then return false
+
+        return true
+    end function
+
+    public function string of_formatar_cpf()
+        if len(cpf) = 11 then
+            return mid(cpf,1,3)+"."+mid(cpf,4,3)+"."+mid(cpf,7,3)+"-"+mid(cpf,10,2)
+        end if
+
+        return cpf
+    end function
+end object
+```
+
+2. Refatorar a função de cadastro para usar o objeto
+```pascal
+public function boolean of_cadastrar_cliente(nv_cliente cliente)
+    if not cliente.of_validar() then
+        return false
+    end if
+
+    ...
+    
+    return true
+end function
+```
+
+3. Uso no sistema
+```pascal
+nv_cliente cliente
+cliente.nome = "João"
+cliente.email = "joao@email.com"
+cliente.cpf = "12345678901"
+cliente.telefone = "46999999999"
+
+boolean sucesso = of_cadastrar_cliente(cliente)
+
+if not sucesso then
+    messagebox("Erro", "Dados inválidos.")
+end if
 ```
 
 ### 📈 Benefícios da Refatoração
 
-- Código mais legível e reutilizável.
-- Parâmetros agrupados com significado.
+- Os dados agora representam um conceito de negócio, e não apenas tipos primitivos.
+- As validações e operações estão encapsuladas, evitando duplicações e facilitando testes.
+- Reduz o número de parâmetros e aumenta a clareza e legibilidade das funções.
+- Deixa o sistema mais coeso, reutilizável e preparado para mudanças (ex: se a validação do CPF mudar, altera-se em um só lugar).
 
 [Voltar ao início](#sumário)
 
