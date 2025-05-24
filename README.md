@@ -558,7 +558,7 @@ Problema: a estrutura apenas armazena os dados. Toda a lógica fica fora dela.
 
 1. Criar um objeto com os dados e comportamentos
 ```pascal
-nonvisualobject nv_cliente
+global type nv_cliente from nonvisualobject
     string nome
     string email
     string cpf
