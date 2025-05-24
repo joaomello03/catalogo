@@ -523,41 +523,80 @@ function boolean of_verificar_cliente(cliente_info cli)
 <a name="data-class"></a>
 ## Data Class
 
-Classes que apenas armazenam dados e não possuem comportamento.
+Esse mau cheiro ocorre quando um objeto existe apenas para armazenar dados, sem conter nenhum comportamento associado. Em PowerScript, é comum vermos objetos que apenas agrupam campos, enquanto toda a lógica associada fica espalhada por outras partes do código.
 
 ### 🧠 Problemas causados
 
-- Falta de encapsulamento.
-- Tendência a lógicas dispersas.
+- Falta de encapsulamento: os dados ficam expostos e são manipulados livremente fora do objeto.
+- Lógica dispersa: operações sobre os dados ficam espalhadas pelo sistema.
+- Baixa coesão: o objeto não representa uma unidade funcional.
+- Dificuldade de manutenção e evolução: alterações nas regras exigem buscas por todo o sistema.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Adicionar comportamentos que pertençam aos dados.
+Aplicar a refatoração **Replace Data Value with Object**, que consistie em substitur estruturas puramente informacionais por objetos que encapsulam dados e comportamentos relacionados. No contexto do PowerScript, isso significa mover funções de validação, formatação ou decisão para dentro do próprio objeto que representa a entidade.
 
-### 🔎 Exemplo com Data Class
+### 🔎 Exemplo de Código com Data Class
 
 ```pascal
-structure cliente
+// Structure simples de cliente
+global type st_cliente from structure
     string nome
     string email
-end structure
+    string cpf
+end type
+
+// Uso em outro código
+if not of_validar_email(cliente.email) then
+    messagebox("Erro", "Email inválido")
+end if
 ```
 
-### ✨ Exemplo Refatorado
+Problema: a estrutura apenas armazena os dados. Toda a lógica fica fora dela.
 
+### ✨ Exemplo de Refatoração Aplicando Replace Data Value with Object
+
+1. Criar um objeto com os dados e comportamentos
 ```pascal
-nonvisualobject nvo_cliente
+nonvisualobject nv_cliente
     string nome
     string email
+    string cpf
 
-    function boolean validar_email()
+    public function boolean of_validar_email()
+        return pos(this.email, "@") > 0
+    end function
+
+    public function string of_formatar_cpf()
+        if len(cpf) = 11 then
+            return mid(cpf,1,3)+"."+mid(cpf,4,3)+"."+mid(cpf,7,3)+"-"+mid(cpf,10,2)
+        end if
+        
+        return cpf
+    end function
 end object
+```
+
+2. Exemplo de uso
+```pascal
+nv_cliente cliente
+
+cliente.nome = "João"
+cliente.email = "joao@email.com"
+cliente.cpf = "12345678901"
+
+if not cliente.of_validar_email() then
+    messagebox("Erro", "Email inválido")
+end if
+
+sle_cpf.text = cliente.of_formatar_cpf()
 ```
 
 ### 📈 Benefícios da Refatoração
 
-- Melhora o design orientado a objetos.
-- Encapsula lógica.
+- O objeto deixa de ser apenas um “porta-dados” e passa a encapsular comportamento relevante.
+- Toda a lógica relacionada ao cliente está em um só lugar, facilitando testes e manutenção.
+- Aproxima o código de um design orientado a objetos verdadeiro, mesmo no PowerScript.
 
 [Voltar ao início](#sumário)
 
