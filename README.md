@@ -440,40 +440,73 @@ end function
 <a name="shotgun-surgery"></a>
 ## Shotgun Surgery
 
-Uma única mudança requer alterações em vários locais.
+Shotgun Surgery é um mau cheiro que ocorre quando uma única modificação no sistema exige alterações em vários locais diferentes do código. Isso geralmente acontece quando uma lógica ou regra de negócio está espalhada por múltiplas unidades, como janelas, objetos ou funções, dificultando a manutenção e aumentando o risco de erros.
 
 ### 🧠 Problemas causados
 
-- Aumenta o risco de erros.
-- Baixa coesão.
+- Alto custo de manutenção: pequenas mudanças exigem modificações em diversos pontos do sistema.
+- Maior propensão a erros: é fácil esquecer de atualizar algum local, resultando em inconsistências.
+- Baixa coesão: funcionalidades relacionadas estão dispersas, violando o princípio da responsabilidade única.
+- Dificuldade de testes: testar uma funcionalidade requer verificar múltiplos componentes.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Move Method** ou **Extract Method** – centralizar lógica repetida.
+A forma mais eficaz de resolver esse mau cheiro é aplicar a refatoração **Move Method**, que consiste em centralizar a lógica repetida em um único método reutilizável.
 
-### 🔎 Exemplo com Shotgun Surgery
+No contexto do PowerScript, isso pode ser feito por meio da criação de um objeto auxiliar (_nonvisualobject_ ou _function_) que encapsula a lógica que antes estava espalhada por janelas ou scripts diferentes. Assim, outras partes do sistema passam a delegar essa responsabilidade a um único ponto de controle, facilitando a manutenção, reduzindo a duplicação e melhorando a clareza do código.
+
+### 🔎 Exemplo de Código com Shotgun Surgery
 
 ```pascal
-if metodo_pagamento = "PIX" then
-    desconto = valor * 0.05
+// Código presente na window 1
+if valor_total > 1000 then
+    valor_total = valor_total - (valor_total * 0.1)
+end if
+
+// Código presente na window 2
+if valor_total > 1000 then
+    valor_total = valor_total - (valor_total * 0.1)
+end if
+
+// Código presente na window 3
+if valor_total > 1000 then
+    valor_total = valor_total - (valor_total * 0.1)
 end if
 ```
 
-### ✨ Exemplo Refatorado
+Problema: A lógica de desconto está duplicada em várias janelas. Se a regra mudar (por exemplo, alterar o valor mínimo para desconto ou a porcentagem), será necessário modificar cada local individualmente.
 
+### ✨ Exemplo de Refatoração Aplicando Move Method
+
+1. Criar um objeto do tipo Function
 ```pascal
-function decimal of_calcular_desconto(string metodo, decimal valor)
-    if lower(metodo) = "pix" then
-        return valor * 0.05
+global function decimal uf_aplicar_desconto (ade_valortotal)
+    if ade_valortotal > 1000 then
+        return ade_valortotal - (ade_valortotal * 0.1)
     end if
-    return 0
+    
+    return ade_valortotal
 end function
+```
+
+2. Usar a função nas janelas
+```pascal
+// Código presente na window 1
+lde_valortotal = uf_aplicar_desconto(lde_valortotal)
+
+// Código presente na window 2
+lde_valortotal = uf_aplicar_desconto(lde_valortotal)
+
+// Código presente na window 3
+lde_valortotal = uf_aplicar_desconto(lde_valortotal)
 ```
 
 ### 📈 Benefícios da Refatoração
 
-- Centralização da lógica.
-- Redução da duplicação.
+- Centralização da lógica de desconto em uma única função.
+- Facilidade para atualizar regras de negócio: qualquer mudança futura será feita em apenas um lugar.
+- Redução de código duplicado em todo o sistema.
+- Melhor legibilidade e manutenção, alinhado com boas práticas de reuso.
 
 [Voltar ao início](#sumário)
 
