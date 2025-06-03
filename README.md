@@ -258,44 +258,118 @@ Cada responsabilidade agora está separada em funções coesas e reutilizáveis.
 <a name="duplicated-code"></a>
 ## Duplicated Code
 
-Esse mau cheiro ocorre quando blocos de código idênticos ou muito semelhantes aparecem em múltiplos lugares. Isso é comum em sistemas legados PowerScript, onde lógicas semelhantes são copiadas entre janelas, scripts ou funções.
+O **Duplicated Code** ocorre quando blocos de código idênticos ou muito semelhantes são replicados em diferentes partes da aplicação. No PowerScript, esse problema é comum em rotinas como manipulação de dados, formatações, cálculos ou validações que são implementadas repetidamente em múltiplos objetos, janelas ou componentes.
+
+Por exemplo, uma mesma regra de validação de CPF pode ser escrita tanto no cadastro de clientes quanto no cadastro de colaboradores, cada um em objetos distintos. Essa duplicação não apenas gera retrabalho, mas também compromete a manutenibilidade do sistema, dificulta a padronização e aumenta significativamente o risco de erros e inconsistências.
 
 ### 🧠 Problemas causados
 
-- Dificulta manutenção: alterações precisam ser replicadas manualmente.
-- Aumenta o risco de inconsistências.
-- Redundância desnecessária.
+- Manutenção trabalhosa e arriscada: alterações precisam ser feitas em vários pontos.
+- Risco de erros e inconsistências: regras evoluem de forma diferente em locais distintos.
+- Código inchado e redundante: maior volume de código para manter e entender.
+- Dificuldade de entendimento: regras espalhadas em eventos, objetos e janelas.
+- Retrabalho constante: ajustes e correções precisam ser replicados manualmente.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Extract Method** – crie uma função reutilizável.
+A refatoração mais indicada para resolver esse problema é o **Extract Method**. É uma técnica onde você move trechos de código repetidos para um método separado e reutilizável. Esse método pode ser colocado em uma classe utilitária, permitindo reuso, centralização da lógica e fácil manutenção.
 
-### 🔎 Exemplo com Duplicated Code
+### 🔎 Exemplo de Código com Duplicated Code
 
+Código presente na tela de cadastro de clientes
 ```pascal
-decimal total1 = (preco - desconto) * quantidade
-total1 += taxa
+public function boolean of_validar_dados ();String ls_CPF
 
-decimal total2 = (preco - desconto) * quantidade
-total2 += taxa
+ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
+
+If Not IsNumber(ls_CPF) Or Len(Trim(ls_CPF)) <> 11 Then
+    MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
+    Return False
+End If
+
+Return True
+end function
 ```
 
-### ✨ Exemplo Refatorado
-
+Código presente na tela de cadastro de colaboradores
 ```pascal
-function decimal of_calcula_total(decimal preco, decimal desconto, integer quantidade, decimal taxa)
-    return ((preco - desconto) * quantidade) + taxa
-end function
+public function boolean of_validar_informacoes ();String ls_CPF
 
-decimal total1 = of_calcula_total(preco, desconto, quantidade, taxa)
-decimal total2 = of_calcula_total(preco, desconto, quantidade, taxa)
+ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
+ls_CPF = Replace(ls_CPF, '.', '')
+ls_CPF = Replace(ls_CPF, '-', '')
+
+If Len(ls_CPF) <> 11 Then
+    MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
+    Return False
+End If
+
+Return True
+end function
+```
+
+Problemas causados:
+- Lógica repetida de validação de CPF, com pequenas variações.
+- Inconsistência funcional, pois uma validação remove os caracteres especiais e outra não. 
+
+### ✨ Exemplo de Refatoração Aplicando Extract Method
+
+Criada uma função de validação de CPF em um objeto utilitário, por exemplo, _nv_dados_pessoais_
+```pascal
+public function boolean of_validar_cpf (string as_cpf);String ls_CPF
+
+ls_CPF = as_CPF
+ls_CPF = Replace(ls_CPF, '.', '')
+ls_CPF = Replace(ls_CPF, '-', '')
+ls_CPF = Trim(ls_CPF)
+
+If Not IsNumber(ls_CPF) Or Len(ls_CPF) <> 11 Then
+    Return False
+End If
+
+Return True
+end function
+```
+
+Chamada da função de validação na tela de cadastro de clientes
+```pascal
+public function boolean of_validar_dados ();String ls_CPF
+nv_Dados_Pessoais lnv_Dados_Pessoais
+
+ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
+
+If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
+    MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
+    Return False
+End If
+
+Return True
+end function
+```
+
+Chamada da função de validação na tela de cadastro de colaboradores
+```pascal
+public function boolean of_validar_informacoes ();String ls_CPF
+nv_Dados_Pessoais lnv_Dados_Pessoais
+
+ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
+
+If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
+    MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
+    Return False
+End If
+
+Return True
+end function
 ```
 
 ### 📈 Benefícios da Refatoração
 
-- Centraliza a lógica.
-- Facilita manutenção.
-- Reduz erros.
+- Evita inconsistências: uma única fonte de verdade para a lógica.
+- Facilita a manutenção: alterações são feitas em um só lugar.
+- Aumenta a reutilização: o código é mais modular e reaproveitável.
+- Melhora a legibilidade: trechos repetitivos saem de cena.
+- Reduz erros: menos chances de divergência ou esquecimento.
 
 [Voltar ao início](#sumário)
 
