@@ -430,45 +430,77 @@ end window
 <a name="feature-envy"></a>
 ## Feature Envy
 
-Métodos que utilizam mais dados de outro objeto do que da própria classe.
+Esse mau cheiro ocorre quando um método demonstra mais interesse nos dados de outro objeto do que nos dados da própria classe onde está implementado. Em vez de utilizar seus próprios atributos e comportamentos, ele acessa frequentemente métodos ou atributos de outro objeto, indicando que essa lógica provavelmente deveria estar na outra classe.
+
+No PowerScript, esse problema é comum em _Non-Visual Objects_ (_NVOs_) ou scripts de janelas, onde é comum ver métodos que manipulam diretamente os atributos de outros objetos, quebrando o encapsulamento e gerando dependências desnecessárias.
 
 ### 🧠 Problemas causados
 
-- Aumenta o acoplamento.
-- Reduz a coesão.
+- Quebra do encapsulamento, com acesso excessivo aos dados de outros objetos.
+- Alto acoplamento entre classes, tornando o código mais frágil e sensível a mudanças.
+- Baixa coesão, já que o método está mais relacionado à outra classe do que à própria.
+- Dificuldade na manutenção e evolução do código, pois a lógica fica espalhada em locais inadequados.
+- Aumento do risco de erros quando há alterações na estrutura interna dos objetos dependentes.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Move Method** – mover método para a classe que contém os dados.
+A refatoração recomendada para tratar o **Feature Envy** é o **Move Method**, conforme descrito por Martin Fowler. Essa técnica consiste em mover o método que está mais interessado nos dados de outra classe para a classe onde esses dados residem, promovendo melhor encapsulamento e coesão.
 
-### 🔎 Exemplo com Feature Envy
+### 🔎 Exemplo de Código com Feature Envy
 
+Nesse exemplo, temos duas classes:
+- _nv_cliente_: responsável pelos dados do cliente.
+- _nv_relatorio_: responsável pela geração de relatórios.
+
+Na classe _nv_cliente_ temos os atributos do cliente
 ```pascal
-function decimal of_calcular_bonus(empregado e)
-    if e.salario > 5000 then
-        return e.salario * 0.1
-    else
-        return e.salario * 0.05
-    end if
+global type nv_cliente from nonvisualobject
+	string is_nome
+	string is_sobrenome
+end type
+```
+
+Na classe _nv_relatorio_ temos uma função responsável por gerar o relatório com o nome completo do cliente
+```pascal
+public function string of_gerar_relatorio_cliente (nv_cliente lnv_cliente)
+	string ls_nomecompleto
+
+	ls_nomecompleto = lnv_cliente.is_nome + " " + lnv_cliente.is_sobrenome
+
+	return "Relatório do Cliente: " + ls_nomecompleto
 end function
 ```
 
-### ✨ Exemplo Refatorado
+Problema do exemplo acima:
+- O método _of_gerar_relatorio_cliente()_ está muito interessado nos atributos da classe _nv_cliente_. Isso é um sinal clássico de **Feature Envy** — ele acessa diretamente dados de outra classe, quando essa responsabilidade poderia estar dentro da própria classe _nv_cliente_.
 
+### ✨ Exemplo de Refatoração Aplicando Move Method
+
+A solução é aplicar o **Move Method**, movendo a responsabilidade de gerar o nome completo para a classe _nv_cliente_. Assim, a classe _nv_relatorio_ não precisa conhecer a estrutura interna da classe cliente.
+
+Criação do nome método na classe _nv_cliente_
 ```pascal
-function decimal of_calcular_bonus()
-    if this.salario > 5000 then
-        return this.salario * 0.1
-    else
-        return this.salario * 0.05
-    end if
+public function string of_obter_nome_completo()
+	return is_nome + " " + is_sobrenome
+end function
+```
+
+Classe _nv_relatorio_ refatorada, chamando o novo método da classe _nv_cliente_
+```pascal
+public function string of_gerar_relatorio_cliente (nv_cliente lnv_cliente)
+	string ls_nomecompleto
+
+	ls_nomecompleto = lnv_cliente.of_obter_nome_completo()
+
+	return "Relatório do Cliente: " + ls_nomecompleto
 end function
 ```
 
 ### 📈 Benefícios da Refatoração
 
-- Reduz dependência externa.
-- Aumenta coesão e encapsulamento.
+- Melhor encapsulamento: os dados e comportamentos relacionados permanecem juntos.
+- Redução do acoplamento: as classes tornam-se menos dependentes umas das outras.
+- Facilidade de manutenção: alterações em uma classe têm menos impacto em outras.
 
 [Voltar ao início](#sumário)
 
