@@ -8,13 +8,13 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
 2. [Long Function](https://github.com/joaomello03/catalogo/blob/main/README.md#long-function)
 3. [Duplicated Code](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicated-code)
-4. [Large Class](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
+4. [Large Class (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
 5. [Feature Envy](https://github.com/joaomello03/catalogo/blob/main/README.md#feature-envy)
-6. [Message Chains](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
+6. [Message Chains (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
 7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
 8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
 9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
-10. [Repeated Switches](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
+10. [Repeated Switches (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
 
 ---
 
@@ -376,7 +376,7 @@ end function
 ---
 
 <a name="large-class"></a>
-## Large Class
+## Large Class (VALIDAR)
 
 Classes com responsabilidades demais, comum em janelas PowerScript com lógica de UI, banco de dados e regras de negócio misturadas.
 
@@ -507,7 +507,7 @@ end function
 ---
 
 <a name="message-chains"></a>
-## Message Chains
+## Message Chains (VALIDAR)
 
 Cadeia longa de chamadas entre objetos (ex: `a().b().c()`).
 
@@ -806,7 +806,7 @@ sle_cpf.text = cliente.of_formatar_cpf()
 ---
 
 <a name="repeated-switches"></a>
-## Repeated Switches
+## Repeated Switches (VALIDAR)
 
 Repetição da mesma estrutura `switch` ou `case` em vários lugares.
 
