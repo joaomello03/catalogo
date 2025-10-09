@@ -20,7 +20,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 13. [NVO Bloat (NVO Gigante) (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
 14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
 15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
-16. [SQL Embedded in Script (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
+16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
 17. [Event Cascade Smell (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 18. [Duplicate DataWindow Objects (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
 19. [Unused Event Scripts (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
@@ -1099,7 +1099,7 @@ SQLCA.LogPass = "abcde"
 
 CONNECT USING SQLCA;
 
-If SQLCA.SQLCode = 1 Then
+If SQLCA.SQLCode = 0 Then
 	MessageBox("Conexão", "Conexão estabelecida com sucesso.")
 Else
 	MessageBox("Erro", "Falha ao conectar ao banco de dados.")
@@ -1121,7 +1121,7 @@ Try
 
 	CONNECT USING SQLCA;
 
-	If SQLCA.SQLCode = 1 Then
+	If SQLCA.SQLCode = 0 Then
 		MessageBox("Conexão", "Conexão estabelecida com sucesso.")
 	Else
 		MessageBox("Erro", "Falha ao conectar ao banco de dados.")
@@ -1261,21 +1261,86 @@ end function
 <a name="sql-embedded-script"></a>
 ## SQL Embedded in Script
 
-Consultas SQL complexas escritas diretamente em scripts PowerScript em vez de DataWindows ou Stored Procedures.
+Instruções SQL podem ser escritas diretamente dentro dos scripts PowerScript (como eventos, botões ou funções em janelas). Essa prática mistura lógica de negócio com acesso a dados, reduz a reutilização e torna a manutenção do código mais complexa e propensa a erros.
 
 ### 🧠 Problemas causados
 
-Dificulta manutenção, reaproveitamento e otimização no banco.
+- Dificulta a manutenção e evolução do sistema, pois instruções SQL estão espalhadas em vários scripts.
+- Viola o princípio de separação de responsabilidades (UI + lógica de banco).
+- Aumenta o risco de SQL Injection quando valores são concatenados diretamente.
+- Torna a depuração e a portabilidade para outros bancos de dados mais difíceis.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Migrar para DataWindow ou procedure; encapsular SQL em métodos especializados.
+Mover instruções SQL para DataWindows, DataStores ou _Non-Visual Objects (NVOs)_ especializados em acesso a dados.
+Usar binding de variáveis (via argumentos ou parâmetros) em vez de concatenar strings SQL diretamente.
 
 ### 🔎 Exemplo com SQL Embedded in Script
 
+```pascal
+// --- Script de um botão para atualizar o status de um pedido ---
+String ls_IdPedido, ls_SQL
+
+ls_IdPedido = sle_Pedido.Text
+
+ls_SQL = "UPDATE PEDIDOS SET STATUS = 'Enviado' WHERE ID = " + ls_IdPedido
+
+EXECUTE IMMEDIATE :ls_SQL USING SQLCA;
+
+If SQLCA.SQLCode = 0 Then
+	MessageBox("Sucesso", "Pedido atualizado com sucesso.")
+Else
+	MessageBox("Erro", "Falha ao atualizar pedido.")
+End If
+```
+
+Neste exemplo, o SQL está **diretamente embutido** no script da interface. Se o sistema tiver várias telas que manipulam o mesmo tipo de informação, haverá duplicação de código SQL em diversos lugares.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- Script de um botão para atualizar o status de um pedido ---
+n_Servico_Pedido lnv_Pedido
+
+Create lnv_Pedido
+
+Try
+	// Apenas delega para um serviço especializado
+	If lnv_Pedido.of_Atualizar_Status(sle_Pedido.Text, "Enviado") = 1 Then
+		MessageBox("Sucesso", "Pedido atualizado com sucesso.")
+	Else
+		MessageBox("Erro", "Falha ao atualizar pedido.")
+	End If
+Finally
+	Destroy lnv_Pedido
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Pedido ---
+
+public function integer of_Atualizar_Status (String as_IdPedido, String as_Status)
+	// Centraliza a lógica SQL aqui
+	PREPARE SQLSA FROM "UPDATE PEDIDOS SET STATUS = ? WHERE ID = ?";
+	EXECUTE SQLSA USING :as_Status, :as_IdPedido;
+	
+	If SQLCA.SQLCode = 0 Then
+		COMMIT USING SQLCA;
+		Return 1
+	Else
+		ROLLBACK USING SQLCA;
+		Return -1
+	End If
+end function
+```
+
 ### 📈 Benefícios da Refatoração
+
+- Centraliza o acesso a dados, facilitando manutenção e auditoria.
+- Reduz duplicação de código SQL em diferentes partes do sistema.
+- Melhora a segurança, evitando SQL Injection.
+- Permite reutilizar o mesmo serviço em múltiplos pontos da aplicação.
+- Facilita a evolução para camadas de persistência mais sofisticadas (DataStores, ORMs, procedures).
 
 [Voltar ao início](#sumário)
 
