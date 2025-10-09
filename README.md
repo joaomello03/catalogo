@@ -442,7 +442,7 @@ end window
 
 Esse mau cheiro ocorre quando um método demonstra mais interesse nos dados de outro objeto do que nos dados da própria classe onde está implementado. Em vez de utilizar seus próprios atributos e comportamentos, ele acessa frequentemente métodos ou atributos de outro objeto, indicando que essa lógica provavelmente deveria estar na outra classe.
 
-No PowerScript, esse problema é comum em _Non-Visual Objects_ (_NVOs_) ou scripts de janelas, onde é comum ver métodos que manipulam diretamente os atributos de outros objetos, quebrando o encapsulamento e gerando dependências desnecessárias.
+No PowerScript, esse problema é comum em _Non-Visual Objects (NVOs)_ ou scripts de janelas, onde é comum ver métodos que manipulam diretamente os atributos de outros objetos, quebrando o encapsulamento e gerando dependências desnecessárias.
 
 ### 🧠 Problemas causados
 
@@ -569,7 +569,7 @@ Shotgun Surgery é um mau cheiro que ocorre quando uma única modificação no s
 
 A forma mais eficaz de resolver esse mau cheiro é aplicar a refatoração **Move Method**, que consiste em centralizar a lógica repetida em um único método reutilizável.
 
-No contexto do PowerScript, isso pode ser feito por meio da criação de um objeto auxiliar (_nonvisualobject_ ou _function_) que encapsula a lógica que antes estava espalhada por janelas ou scripts diferentes. Assim, outras partes do sistema passam a delegar essa responsabilidade a um único ponto de controle, facilitando a manutenção, reduzindo a duplicação e melhorando a clareza do código.
+No contexto do PowerScript, isso pode ser feito por meio da criação de um objeto auxiliar (_Non-Visual Object (NVO)_ ou _Function_) que encapsula a lógica que antes estava espalhada por janelas ou scripts diferentes. Assim, outras partes do sistema passam a delegar essa responsabilidade a um único ponto de controle, facilitando a manutenção, reduzindo a duplicação e melhorando a clareza do código.
 
 ### 🔎 Exemplo de Código com Shotgun Surgery
 
@@ -645,7 +645,7 @@ Primitive Obsession é um mau cheiro de código que ocorre quando usamos tipos p
 ### 🛠️ Solução/Refatoração Recomendada
 
 Aplicar a refatoração **Replace Primitive with Value Object**, que consiste em substituir um ou mais campos primitivos por um objeto específico que represente o conceito, encapsulando os dados e as operações relacionadas.
-Em PowerScript, use um nonvisualobject ou para representar um conceito de domínio (ex: ClienteInfo, Endereco, CPF, Produto), e mova validações, formatações e outras operações para dentro dele.
+Em PowerScript, use um _Non-Visual Object (NVO)_ ou para representar um conceito de domínio (ex: ClienteInfo, Endereco, CPF, Produto), e mova validações, formatações e outras operações para dentro dele.
 
 ### 🔎 Exemplo de Código com Primitive Obsession
 
@@ -884,7 +884,7 @@ Scripts de eventos (como _open, clicked, itemchanged_) acumulam muita lógica de
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Mover a lógica de negócio para _Non-Visual Objects_ (NVOs), que podem ser chamados a partir dos eventos visuais.
+Mover a lógica de negócio para _Non-Visual Objects (NVOs)_, que podem ser chamados a partir dos eventos visuais.
 Aplicar o padrão de _event routing_ — isto é, o evento da interface apenas delega a ação para um método especializado.
 
 ### 🔎 Exemplo com Overloaded Window Script
@@ -955,13 +955,13 @@ public function integer of_Registrar_Venda (DataWindow adw_Vendas);
 		ROLLBACK;
         RAISE EXCEPTION CreateException("Erro ao gravar a venda.")
     End If
-End Function
+end function
 ```
 
 ### 📈 Benefícios da Refatoração
 
 - A janela (UI) fica limpa, contendo apenas chamadas de evento e delegação de ações.
-- A lógica de negócio fica centralizada, reutilizável e testável em um _Non-Visual Object_.
+- A lógica de negócio fica centralizada, reutilizável e testável em um _Non-Visual Object (NVO)_.
 - Reduz o acoplamento entre interface e persistência.
 - Facilita manutenção, testes unitários e reaproveitamento em outras janelas.
 
@@ -969,28 +969,120 @@ End Function
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <a name="datawindow-logic-smell"></a>
 ## DataWindow Logic Smell
 
-Cálculos, validações e regras de negócio implementadas diretamente dentro de expressões ou eventos do DataWindow (como itemchanged ou itemfocuschanged).
+Regras de negócio, cálculos e validações implementadas diretamente em expressões, eventos ou triggers do **DataWindow** (como _itemchanged, itemfocuschanged_ ou expressões computadas). Esse tipo de implementação mistura lógica de domínio com a camada de apresentação dos dados.
 
 ### 🧠 Problemas causados
 
-Regras de negócio ficam espalhadas, difíceis de localizar ou testar.
-Cada alteração exige abrir e editar a DataWindow no designer.
+- A lógica fica “escondida” dentro do DataWindow, dificultando testes e manutenção.
+- Cada alteração exige abrir o designer do DataWindow, tornando o processo lento e arriscado.
+- Regras de negócio acabam duplicadas em vários DataWindows diferentes.
+- Viola o princípio de Separação de Responsabilidades, pois a camada de apresentação passa a conter lógica de negócio.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Extrair a lógica para métodos de uma NVO ou Service Layer.
-Usar DataWindow wrappers para encapsular comportamento.
+Extrair a lógica de negócio das expressões e eventos do DataWindow e movê-la para _Non-Visual Objects (NVOs)_.
+Utilizar métodos de validação e cálculo fora do objeto visual, deixando o DataWindow apenas responsável pela exibição e manipulação de dados.
 
 ### 🔎 Exemplo com DataWindow Logic Smell
 
+```pascal
+// --- Evento ItemChanged() dentro do DataWindow dw_Funcionario ---
+
+If dwo.Name = 'salario' Then
+	If Decimal(Data) > 10000 Then
+		dw_Funcionario.SetItem(Row, 'classificacao', 'Sênior')
+    Else
+		dw_Funcionario.SetItem(Row, 'classificacao', 'Júnior')
+	End If
+End If
+```
+
+Neste exemplo, a lógica de classificação de funcionário está diretamente embutida no DataWindow, tornando difícil testar ou reaproveitar em outro contexto.
+
 ### ✨ Exemplo Refatorado
+
+```pascal
+// --- Evento ItemChanged() da janela ou UserObject que contém o DataWindow ---
+If dwo.Name = 'salario' Then
+	n_Servico_Funcionario lnv_Funcionario
+	String ls_Classificacao
+
+	Create lnv_Funcionario
+	Try
+		ls_Classificacao = lnv_Funcionario.of_Definir_Classificacao(Decimal(Data))
+		dw_Funcionario.SetItem(Row, 'classificacao', ls_Classificacao)
+	Finally
+		Destroy(lnv_Funcionario)
+	End Try
+End If
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Funcionario ---
+
+public function string of_Definir_Cargo (Decimal ade_Salario);
+	If ade_Salario > 10000 Then
+		Return 'Sênior'
+	Else
+		Return 'Júnior'
+	End If
+end function
+```
 
 ### 📈 Benefícios da Refatoração
 
+- A regra de negócio fica isolada em um _Non-Visual Object (NVO)_ reutilizável e testável.
+- O DataWindow passa a cuidar apenas da interface e da manipulação de dados.
+- Manutenções futuras podem ser feitas sem abrir o editor visual.
+- Reduz duplicação de lógica entre diferentes DataWindows.
+- Facilita a implementação de testes automatizados e a evolução do sistema.
+
 [Voltar ao início](#sumário)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
