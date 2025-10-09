@@ -873,23 +873,97 @@ usuario.registrar_log()
 <a name="overloaded-window-script"></a>
 ## Overloaded Window Script
 
-Scripts de eventos (como ue_open, ue_clicked, ue_itemchanged) acumulam muita lógica de negócio diretamente no objeto visual (Window, UserObject, DataWindow control).
+Scripts de eventos (como _open, clicked, itemchanged_) acumulam muita lógica de negócio diretamente no objeto visual (_Window, UserObject, DataWindow Control_). Isso geralmente ocorre quando a lógica de persistência, validação ou processamento de dados é implementada dentro da própria janela, em vez de ser delegada a um objeto especializado.
 
 ### 🧠 Problemas causados
 
-Mistura de camadas (UI + lógica de negócio), tornando o código difícil de testar e reutilizar.
-Viola o princípio de separação de responsabilidades.
+- Mistura de camadas (UI + lógica de negócio), tornando o código difícil de testar, reutilizar e manter.
+- Aumenta o acoplamento entre interface e regras de negócio.
+- Qualquer mudança de regra exige alterar o código da interface.
+- Viola o princípio de Separação de Responsabilidades (_Single Responsibility Principle_).
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Mover a lógica para non-visual objects (NVOs), services ou business objects reutilizáveis.
-Usar event routing (delegar do evento para métodos especializados).
+Mover a lógica de negócio para _Non-Visual Objects_ (NVOs), que podem ser chamados a partir dos eventos visuais.
+Aplicar o padrão de _event routing_ — isto é, o evento da interface apenas delega a ação para um método especializado.
 
 ### 🔎 Exemplo com Overloaded Window Script
 
+```pascal
+// --- Evento Clicked() da janela w_Vendas ---
+
+// Validação e persistência diretamente na janela (ruim)
+String ls_Cliente, ls_Produto
+Decimal lde_Total
+
+ls_Cliente = dw_Vendas.GetItemString(1, 'cliente')
+ls_Produto = dw_Vendas.GetItemString(1, 'produto')
+lde_Total = dw_Vendas.GetItemDecimal(1, 'total')
+
+If ls_Cliente = '' Or ls_Produto = '' Or ls_Total = '' Then
+	MessageBox("Erro", "Informe o cliente e o produto antes de salvar.")
+    Return
+End If
+
+If dw_Vendas.Update() = 1 Then
+    COMMIT;
+    MessageBox("Sucesso", "Venda registrada com sucesso!")
+Else
+    ROLLBACK;
+    MessageBox("Erro", "Falha ao registrar a venda.")
+End If
+```
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- Evento Clicked() da janela w_Vendas ---
+
+// Delegando a lógica para um serviço
+n_Servico_Vendas lnv_Vendas
+
+Create lnv_Vendas
+
+Try
+	lnv_Vendas.of_Registrar_Venda(dw_Vendas)
+Catch (EXCEPTION ex)
+    MessageBox("Erro", ex.GetMessage())
+Finally
+    Destroy(lnv_Vendas)
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Vendas ---
+
+public function integer of_Registrar_Venda (DataWindow adw_Vendas);
+	String ls_Cliente, ls_Produto
+	Decimal lde_Total
+
+	ls_Cliente = adw_Vendas.GetItemString(1, 'cliente')
+	ls_Produto = adw_Vendas.GetItemString(1, 'produto')
+	lde_Total = adw_Vendas.GetItemDecimal(1, 'total')
+
+	If ls_Cliente = '' Or ls_Produto = '' Or ls_Total = '' Then
+		RAISE EXCEPTION CreateException("Campos obrigatórios não informados.")
+	End If
+	
+	If adw_Vendas.Update() = 1 Then
+		COMMIT;
+		Return 1
+	Else
+		ROLLBACK;
+        RAISE EXCEPTION CreateException("Erro ao gravar a venda.")
+    End If
+End Function
+```
+
 ### 📈 Benefícios da Refatoração
+
+- A janela (UI) fica limpa, contendo apenas chamadas de evento e delegação de ações.
+- A lógica de negócio fica centralizada, reutilizável e testável em um _Non-Visual Object_.
+- Reduz o acoplamento entre interface e persistência.
+- Facilita manutenção, testes unitários e reaproveitamento em outras janelas.
 
 [Voltar ao início](#sumário)
 
