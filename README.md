@@ -17,14 +17,14 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 10. [Repeated Switches (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
 11. [Overloaded Window Script](https://github.com/joaomello03/catalogo/blob/main/README.md#overloaded-window-script)
 12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
-13. [NVO Bloat (NVO Gigante)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
+13. [NVO Bloat (NVO Gigante) (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
 14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
-15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
-16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
-17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
-18. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
-19. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-20. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+15. [Unmanaged Object Lifetime (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
+16. [SQL Embedded in Script (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
+17. [Event Cascade Smell (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
+18. [Duplicate DataWindow Objects (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
+19. [Unused Event Scripts (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
+20. [Modelo Exemplo (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -936,7 +936,7 @@ End Try
 ```pascal
 // --- Non-Visual Object: n_Servico_Vendas ---
 
-public function integer of_Registrar_Venda (DataWindow adw_Vendas);
+public function integer of_Registrar_Venda (DataWindow adw_Vendas)
 	String ls_Cliente, ls_Produto
 	Decimal lde_Total
 
@@ -968,27 +968,6 @@ end function
 [Voltar ao início](#sumário)
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <a name="datawindow-logic-smell"></a>
 ## DataWindow Logic Smell
@@ -1044,7 +1023,7 @@ End If
 ```pascal
 // --- Non-Visual Object: n_Servico_Funcionario ---
 
-public function string of_Definir_Cargo (Decimal ade_Salario);
+public function string of_Definir_Cargo (Decimal ade_Salario)
 	If ade_Salario > 10000 Then
 		Return 'Sênior'
 	Else
@@ -1062,27 +1041,6 @@ end function
 - Facilita a implementação de testes automatizados e a evolução do sistema.
 
 [Voltar ao início](#sumário)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ---
 
@@ -1113,21 +1071,103 @@ Dividir o NVO em serviços menores e especializados (Extract NVO, Facade Pattern
 <a name="hardcoded-paths"></a>
 ## Hardcoded Paths or Connection Strings
 
-Strings de conexão, caminhos de arquivos e credenciais codificadas diretamente no script.
+Strings de conexão, caminhos de arquivos, diretórios e credenciais são definidos diretamente no código PowerScript. Esse tipo de implementação torna o sistema rígido, pouco configurável e vulnerável a falhas ou exposição de informações sensíveis.
 
 ### 🧠 Problemas causados
 
-Dificulta manutenção, viola segurança e impede portabilidade.
+- Dificulta a manutenção, pois qualquer alteração exige recompilar e redistribuir a aplicação.
+- Viola boas práticas de segurança, expondo senhas e informações de ambiente.
+- Reduz a portabilidade, já que caminhos e configurações ficam fixos no código.
+- Impede a reutilização do mesmo código em diferentes ambientes (desenvolvimento, teste, produção).
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Ler valores de arquivo INI, banco de dados de configuração, ou variáveis de ambiente.
+Remover valores fixos do código e carregá-los dinamicamente a partir de **arquivos de configuração (INI, JSON, XML)**, **tabelas de configuração no banco de dados**, ou **variáveis de ambiente**.
+Criar um objeto responsável por gerenciar as configurações de conexão e caminhos de forma centralizada.
 
 ### 🔎 Exemplo com Hardcoded Paths or Connection Strings
 
+```pascal
+// --- Script no evento Open() da aplicação ---
+SQLCA.DBMS = "ODBC"
+SQLCA.Database = "db_vendas"
+SQLCA.UserID = "admin"
+SQLCA.DBPass = "12345"
+SQLCA.LogId = "app_user"
+SQLCA.LogPass = "abcde"
+
+CONNECT USING SQLCA;
+
+If SQLCA.SQLCode = 1 Then
+	MessageBox("Conexão", "Conexão estabelecida com sucesso.")
+Else
+	MessageBox("Erro", "Falha ao conectar ao banco de dados.")
+End If
+```
+
+Neste exemplo, as credenciais e parâmetros de conexão estão codificados diretamente no código, o que torna o sistema inseguro e inflexível.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- Evento Open() da aplicação ---
+n_Servico_Config lnv_Config
+
+Create lnv_Config
+
+Try
+	SQLCA = lnv_Config.of_Carregar_Conexao("producao")
+
+	CONNECT USING SQLCA;
+
+	If SQLCA.SQLCode = 1 Then
+		MessageBox("Conexão", "Conexão estabelecida com sucesso.")
+	Else
+		MessageBox("Erro", "Falha ao conectar ao banco de dados.")
+	End If
+Finally
+	Destroy(lnv_Config)
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Config ---
+
+public function transaction of_Carregar_Conexao (String as_Ambiente)
+	Transaction lt_SQLCA
+	String ls_Arquivo_INI = "app_config.ini"
+
+	Create lt_SQLCA
+
+	lt_SQLCA.DBMS      = ProfileString(ls_Arquivo_INI, as_Ambiente, "DBMS", "")
+	lt_SQLCA.Database  = ProfileString(ls_Arquivo_INI, as_Ambiente, "Database", "")
+	lt_SQLCA.UserID    = ProfileString(ls_Arquivo_INI, as_Ambiente, "UserID", "")
+	lt_SQLCA.DBPass    = ProfileString(ls_Arquivo_INI, as_Ambiente, "DBPass", "")
+	lt_SQLCA.LogId     = ProfileString(ls_Arquivo_INI, as_Ambiente, "LogId", "")
+	lt_SQLCA.LogPass   = ProfileString(ls_Arquivo_INI, as_Ambiente, "LogPass", "")
+
+	Return lt_SQLCA
+end function
+```
+
+```pascal
+// --- Arquivo app_config.ini ---
+[producao]
+DBMS=ODBC
+Database=db_vendas
+UserID=admin
+DBPass=12345
+LogId=app_user
+LogPass=abcde
+```
+
 ### 📈 Benefícios da Refatoração
+
+- Facilita a troca de ambiente sem alterar o código-fonte.
+- Melhora a segurança ao evitar que credenciais fiquem expostas no código.
+- Centraliza o gerenciamento de configurações, reduzindo duplicação.
+- Permite alterar conexões e caminhos dinamicamente em tempo de execução.
+- Torna o sistema mais flexível, configurável e aderente a boas práticas corporativas.
 
 [Voltar ao início](#sumário)
 
