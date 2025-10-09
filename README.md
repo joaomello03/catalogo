@@ -854,5 +854,240 @@ usuario.registrar_log()
 
 [Voltar ao início](#sumário)
 
+---
+
+# [Específicos PowerScript]
+
+---
+
+<a name="overloaded-window-script"></a>
+## Overloaded Window Script
+
+Scripts de eventos (como ue_open, ue_clicked, ue_itemchanged) acumulam muita lógica de negócio diretamente no objeto visual (Window, UserObject, DataWindow control).
+
+### 🧠 Problemas causados
+
+Mistura de camadas (UI + lógica de negócio), tornando o código difícil de testar e reutilizar.
+Viola o princípio de separação de responsabilidades.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Mover a lógica para non-visual objects (NVOs), services ou business objects reutilizáveis.
+Usar event routing (delegar do evento para métodos especializados).
+
+### 🔎 Exemplo com Overloaded Window Script
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="datawindow-logic-smell"></a>
+## DataWindow Logic Smell
+
+Cálculos, validações e regras de negócio implementadas diretamente dentro de expressões ou eventos do DataWindow (como itemchanged ou itemfocuschanged).
+
+### 🧠 Problemas causados
+
+Regras de negócio ficam espalhadas, difíceis de localizar ou testar.
+Cada alteração exige abrir e editar a DataWindow no designer.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Extrair a lógica para métodos de uma NVO ou Service Layer.
+Usar DataWindow wrappers para encapsular comportamento.
+
+### 🔎 Exemplo com DataWindow Logic Smell
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="nvo-bloat"></a>
+## NVO Bloat (NVO Gigante)
+
+Objetos não visuais que centralizam toda a lógica da aplicação — muitas vezes virando “God Objects”.
+
+### 🧠 Problemas causados
+
+Responsabilidades múltiplas, difícil de manter e testar.
+Pequenas alterações podem quebrar várias funcionalidades.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Dividir o NVO em serviços menores e especializados (Extract NVO, Facade Pattern).
+
+### 🔎 Exemplo com NVO Bloat (NVO Gigante)
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="hardcoded-paths"></a>
+## Hardcoded Paths or Connection Strings
+
+Strings de conexão, caminhos de arquivos e credenciais codificadas diretamente no script.
+
+### 🧠 Problemas causados
+
+Dificulta manutenção, viola segurança e impede portabilidade.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Ler valores de arquivo INI, banco de dados de configuração, ou variáveis de ambiente.
+
+### 🔎 Exemplo com Hardcoded Paths or Connection Strings
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="unmanaged-object-lifetime"></a>
+## Unmanaged Object Lifetime
+
+Criação de objetos (CREATE), DataStores ou DataWindows sem DESTROY correspondente.
+
+### 🧠 Problemas causados
+
+Vazamento de memória e conexões não encerradas.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Garantir que cada CREATE tenha DESTROY dentro de finally ou no Close do container.
+
+### 🔎 Exemplo com Unmanaged Object Lifetime
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="sql-embedded-script"></a>
+## SQL Embedded in Script
+
+Consultas SQL complexas escritas diretamente em scripts PowerScript em vez de DataWindows ou Stored Procedures.
+
+### 🧠 Problemas causados
+
+Dificulta manutenção, reaproveitamento e otimização no banco.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Migrar para DataWindow ou procedure; encapsular SQL em métodos especializados.
+
+### 🔎 Exemplo com SQL Embedded in Script
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="event-cascade-smell"></a>
+## Event Cascade Smell
+
+Eventos que chamam outros eventos de forma encadeada (por exemplo, Clicked() chamando ItemChanged() manualmente).
+
+### 🧠 Problemas causados
+
+Difícil de entender e depurar; ordem de execução pode gerar efeitos colaterais inesperados.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Extrair a lógica para métodos isolados e chamar diretamente, sem dependência entre eventos.
+
+### 🔎 Exemplo com Event Cascade Smell
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="duplicate-datawindow-objects"></a>
+## Duplicate DataWindow Objects
+
+Várias DataWindows diferentes com o mesmo SQL e estrutura, criadas para telas distintas.
+
+### 🧠 Problemas causados
+
+Duplicação de lógica e maior esforço de manutenção.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Centralizar DataWindows reutilizáveis; parametrizar visualização ou usar herança de DataWindow (inheritance).
+
+### 🔎 Exemplo com Duplicate DataWindow Objects
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="unused-event-scripts"></a>
+## Unused Event Scripts
+
+Eventos criados automaticamente (por herança ou IDE) mas nunca utilizados.
+
+### 🧠 Problemas causados
+
+Ruído no código e confusão durante manutenção.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Remover scripts vazios ou consolidar no evento pai.
+
+### 🔎 Exemplo com Unused Event Scripts
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="modelo-exemplo"></a>
+## Modelo Exemplo
+
+### 🧠 Problemas causados
+
+### 🛠️ Solução/Refatoração Recomendada
+
+### 🔎 Exemplo com Modelo Exemplo
+
+### ✨ Exemplo Refatorado
+
+### 📈 Benefícios da Refatoração
+
+[Voltar ao início](#sumário)
+
+---
+
 <!-- Links -->
 [Catalogo PowerScript]: https://github.com/joaomello03/catalogo
