@@ -19,7 +19,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
 13. [NVO Bloat (NVO Gigante) (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
 14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
-15. [Unmanaged Object Lifetime (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
+15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
 16. [SQL Embedded in Script (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
 17. [Event Cascade Smell (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 18. [Duplicate DataWindow Objects (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
@@ -1177,21 +1177,82 @@ LogPass=abcde
 <a name="unmanaged-object-lifetime"></a>
 ## Unmanaged Object Lifetime
 
-Criação de objetos (CREATE), DataStores ou DataWindows sem DESTROY correspondente.
+Criação de objetos, DataStores, DataWindows e outros recursos no PowerScript sem o devido controle de ciclo de vida (ou seja, sem um **DESTROY** correspondente). Isso gera vazamentos de memória, conexões abertas indevidamente e instabilidade da aplicação ao longo do tempo.
 
 ### 🧠 Problemas causados
 
-Vazamento de memória e conexões não encerradas.
+- Consumo de memória desnecessário, especialmente em aplicações longas ou com múltiplas janelas abertas.
+- Objetos permanecem em memória mesmo após o uso, degradando o desempenho.
+- Conexões de banco de dados e recursos do sistema podem permanecer abertos.
+- Aumenta o risco de falhas e crashes difíceis de rastrear.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Garantir que cada CREATE tenha DESTROY dentro de finally ou no Close do container.
+Garantir que todo objeto criado com **CREATE** seja explicitamente destruído após o uso com **DESTROY**.
+
+Utilizar blocos **TRY...FINALLY** para assegurar a liberação mesmo em caso de exceção.
+
+Centralizar a criação e destruição de objetos em serviços de controle ou métodos auxiliares, especialmente para DataStores e _Non-Visual Objects (NVOs)_.
 
 ### 🔎 Exemplo com Unmanaged Object Lifetime
 
+```pascal
+// --- Script de processamento em um botão de janela ---
+n_Relatorio lnv_Relatorio
+
+Create lnv_Relatorio
+
+lnv_Relatorio.of_Gerar_Relatorio("mensal")
+
+// Nenhum DESTROY é chamado — o objeto permanece em memória
+```
+
+Neste exemplo, o objeto _lnv_Relatorio_ é criado e utilizado, mas **nunca destruído**. Se esse script for executado várias vezes, cada instância permanece em memória, consumindo recursos até o fechamento do aplicativo.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- Script de processamento em um botão de janela ---
+n_Relatorio lnv_Relatorio
+
+Try
+	Create lnv_Relatorio
+	lnv_Relatorio.of_Gerar_Relatorio("mensal")
+Finally
+	If IsValid(lnv_Relatorio) Then
+		Destroy lnv_Relatorio
+	End If
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Relatorio ---
+
+public function integer of_Gerar_Relatorio (String as_Tipo)
+	DataStore lds_Relatorio
+	
+	lds_Relatorio = Create DataStore
+	
+	lds_Relatorio.DataObject = "d_relatorio_" + as_Tipo
+	lds_Relatorio.SetTransObject(SQLCA)
+	lds_Relatorio.Retrieve()
+	
+	// Simula geração de relatório
+	MessageBox("Relatório", "Relatório " + as_Tipo + " gerado com sucesso!")
+	
+	Destroy(lds_Relatorio)
+	
+	Return 1
+end function
+```
+
 ### 📈 Benefícios da Refatoração
+
+- Garante liberação de memória e recursos após o uso.
+- Evita vazamentos e degradação de desempenho em longas sessões.
+- Melhora a estabilidade e previsibilidade da aplicação.
+- Facilita o rastreamento de erros e a depuração.
+- Segue boas práticas de gerenciamento de ciclo de vida de objetos em PowerBuilder.
 
 [Voltar ao início](#sumário)
 
