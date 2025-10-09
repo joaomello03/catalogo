@@ -1083,6 +1083,7 @@ Strings de conexão, caminhos de arquivos, diretórios e credenciais são defini
 ### 🛠️ Solução/Refatoração Recomendada
 
 Remover valores fixos do código e carregá-los dinamicamente a partir de **arquivos de configuração (INI, JSON, XML)**, **tabelas de configuração no banco de dados**, ou **variáveis de ambiente**.
+
 Criar um objeto responsável por gerenciar as configurações de conexão e caminhos de forma centralizada.
 
 ### 🔎 Exemplo com Hardcoded Paths or Connection Strings
