@@ -15,6 +15,16 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
 9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
 10. [Repeated Switches (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
+11. [Overloaded Window Script](https://github.com/joaomello03/catalogo/blob/main/README.md#overloaded-window-script)
+12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
+13. [NVO Bloat (NVO Gigante)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
+14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
+15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
+16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
+17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
+18. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
+19. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
+20. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
