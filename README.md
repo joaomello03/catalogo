@@ -22,7 +22,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
 16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
 17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
-18. [Duplicate DataWindow Objects (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
+18. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
 19. [Unused Event Scripts (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
 20. [Modelo Exemplo (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
@@ -1451,21 +1451,86 @@ Neste exemplo refatorado, o **fluxo é linear e previsível**: o evento _Clicked
 <a name="duplicate-datawindow-objects"></a>
 ## Duplicate DataWindow Objects
 
-Várias DataWindows diferentes com o mesmo SQL e estrutura, criadas para telas distintas.
+Ocorre quando múltiplos objetos DataWindow diferentes implementam a mesma estrutura de dados, consulta SQL ou layout visual — geralmente com pequenas variações cosméticas.
+Essa duplicação aumenta o esforço de manutenção e causa inconsistências em relatórios, formulários e telas de consulta.
 
 ### 🧠 Problemas causados
 
-Duplicação de lógica e maior esforço de manutenção.
+- Alterações em uma consulta SQL exigem atualizar várias DataWindows semelhantes.
+- Aumenta o risco de inconsistência entre telas que exibem os mesmos dados.
+- Dificulta a manutenção e evolução do sistema, especialmente em projetos grandes.
+- Gera retrabalho e versões divergentes de um mesmo artefato.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Centralizar DataWindows reutilizáveis; parametrizar visualização ou usar herança de DataWindow (inheritance).
+Centralizar o uso de DataWindows reutilizáveis, criando objetos genéricos parametrizáveis ou camadas de serviço (_Non-Visual Objects (NVOs)_) que encapsulem as consultas.
+
+Evitar criar novos objetos para pequenas variações — prefira configuração dinâmica via SetSQLSelect() e Modify().
 
 ### 🔎 Exemplo com Duplicate DataWindow Objects
 
+```pascal
+// --- d_Cliente_Listagem - Exibe clientes ativos ---
+SELECT IDCLIENTE, NOME, EMAIL, STATUS
+FROM CLIENTE
+WHERE STATUS = 'Ativo'
+
+// --- d_Cliente_Consulta - Exibe clientes ativos também (duplicado) ---
+SELECT IDCLIENTE, NOME, EMAIL, STATUS
+FROM CLIENTE
+WHERE STATUS = 'Ativo'
+
+// --- d_Cliente_Relatorio - Idêntico, apenas muda a cor de fundo ---
+SELECT IDCLIENTE, NOME, EMAIL, STATUS
+FROM CLIENTE
+WHERE STATUS = 'Ativo'
+```
+
+Esses três objetos (_d_Cliente_Listagem, d_Cliente_Consulta, d_Cliente_Relatorio_) possuem a mesma consulta SQL e estrutura, mas foram duplicados para finalidades ligeiramente diferentes. Se o nome de uma coluna mudar no banco, será necessário atualizar todas as versões manualmente.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- DataWindow genérica: d_cliente_base ---
+SELECT IDCLIENTE, NOME, EMAIL, STATUS
+FROM CLIENTE
+WHERE STATUS = :RA_STATUS
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Cliente ---
+
+public function integer of_Carregar_Clientes (DataWindow adw_Cliente, String as_Status)
+	adw_Cliente.DataObject = "d_cliente_base"
+	adw_Cliente.SetTransObject(SQLCA)
+	adw_Cliente.SetSQLSelect("SELECT IDCLIENTE, NOME, EMAIL, STATUS FROM CLIENTE WHERE STATUS = '" + as_Status + "'")
+	adw_Cliente.Retrieve()
+
+	Return 1
+end function
+```
+
+```pascal
+// --- Evento Open de uma janela (w_Cliente_Listagem) ---
+n_Servico_Cliente lnv_Cliente
+Create lnv_Cliente
+
+Try
+	lnv_Cliente.of_Carregar_Clientes(dw_Clientes, "Ativo")
+Finally
+	Destroy lnv_Cliente
+End Try
+```
+
+Neste exemplo, todas as telas compartilham um único DataWindow base, parametrizando o comportamento via código. As diferenças visuais podem ser aplicadas dinamicamente por meio do método _Modify()_, enquanto alterações na consulta SQL podem ser realizadas em tempo de execução utilizando o método _SetSQLSelect()_.
+
 ### 📈 Benefícios da Refatoração
+
+- Elimina redundância de código SQL e layout.
+- Facilita a manutenção — uma alteração reflete em todos os usos.
+- Reduz inconsistências e retrabalho.
+- Melhora a reutilização de componentes e a padronização visual.
+- Segue boas práticas de design e modularidade no desenvolvimento PowerBuilder.
 
 [Voltar ao início](#sumário)
 
