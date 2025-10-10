@@ -23,8 +23,8 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
 17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 18. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
-19. [Unused Event Scripts (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-20. [Modelo Exemplo (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+19. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
+20. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -1539,21 +1539,96 @@ Neste exemplo, todas as telas compartilham um único DataWindow base, parametriz
 <a name="unused-event-scripts"></a>
 ## Unused Event Scripts
 
-Eventos criados automaticamente (por herança ou IDE) mas nunca utilizados.
+Ocorre quando eventos padrão ou personalizados (como _ue_validate, ue_refresh, Clicked, ItemChanged_, etc.) são declarados, mas nunca utilizados ou invocados no ciclo de execução da aplicação.
+Esses scripts permanecem no código sem propósito, acumulando complexidade e confundindo o entendimento da lógica do sistema.
 
 ### 🧠 Problemas causados
 
-Ruído no código e confusão durante manutenção.
+- Polui o código com eventos inativos ou desatualizados.
+- Dificulta a leitura e manutenção, pois o desenvolvedor perde tempo analisando scripts que não são mais utilizados.
+- Pode gerar comportamentos inesperados caso o evento volte a ser invocado acidentalmente.
+- Aumenta o tamanho do código-fonte e o risco de inconsistências em versões futuras.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Remover scripts vazios ou consolidar no evento pai.
+- Remover eventos que não são mais usados.
+- Consolidar lógica redundante em métodos ativos ou _Non-Visual Objects (NVOs)_.
+- Utilizar revisões de código e ferramentas de análise estática para identificar scripts não referenciados.
 
 ### 🔎 Exemplo com Unused Event Scripts
 
+```pascal
+// --- Evento ue_Validate() no UserObject uo_Cliente ---
+MessageBox("Validação", "Validando dados do cliente...")
+// (Este evento nunca é chamado em nenhum lugar do sistema)
+
+
+// --- Evento ue_Refresh() no mesmo UserObject ---
+dw_Dados.Retrieve()
+// (Este evento também não é referenciado em nenhum outro script)
+
+
+// --- Evento Clicked() do botão "Salvar" ---
+n_Servico_Cliente lnv_Cliente
+Create lnv_Cliente
+
+lnv_Cliente.of_Salvar_Cliente(dw_Dados)
+
+Destroy lnv_Cliente
+```
+
+Neste exemplo, os eventos _ue_validate()_ e _ue_refresh()_ existem, mas nunca são chamados — nem por outros eventos, nem por código externo.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- UserObject uo_Cliente — apenas mantém o que é realmente utilizado ---
+
+// --- Evento Clicked() do botão "Salvar" ---
+n_Servico_Cliente lnv_Cliente
+Create lnv_Cliente
+
+Try
+	lnv_Cliente.of_Validar_Cliente(dw_Dados)
+	lnv_Cliente.of_Salvar_Cliente(dw_Dados)
+	MessageBox("Sucesso", "Cliente salvo com sucesso.")
+Finally
+	Destroy lnv_Cliente
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Cliente ---
+
+public function integer of_Validar_Cliente (DataWindow adw_Dados)
+	Long ll_Row
+
+	ll_Row = adw_Dados.GetRow()
+
+	If adw_Dados.GetItemString(ll_Row, "nome")) = "" Then
+		MessageBox("Erro", "O nome do cliente é obrigatório.")
+		Return -1
+	End If
+
+	Return 1
+end function
+
+public function integer of_Salvar_Cliente (DataWindow adw_Dados)
+	adw_Dados.Update()
+	COMMIT USING SQLCA;
+	Return 1
+end function
+```
+
+Neste exemplo refatorado, os eventos não utilizados foram removidos e sua lógica essencial foi concentrada em um _Non-Visual Object (NVO)_ reutilizável, tornando o código mais limpo, rastreável e fácil de manter.
+
 ### 📈 Benefícios da Refatoração
+
+- Reduz o volume de código e melhora a legibilidade.
+- Evita confusão e comportamentos inesperados com eventos não intencionais.
+- Facilita o rastreamento do fluxo de execução da interface.
+- Garante que cada evento existente tem um propósito claro e ativo.
+- Contribui para uma base de código mais enxuta, consistente e de fácil manutenção.
 
 [Voltar ao início](#sumário)
 
