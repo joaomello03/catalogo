@@ -21,7 +21,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
 15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
 16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
-17. [Event Cascade Smell (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
+17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 18. [Duplicate DataWindow Objects (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
 19. [Unused Event Scripts (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
 20. [Modelo Exemplo (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
@@ -386,7 +386,7 @@ end function
 ---
 
 <a name="large-class"></a>
-## Large Class (VALIDAR)
+## Large Class
 
 Classes com responsabilidades demais, comum em janelas PowerScript com lógica de UI, banco de dados e regras de negócio misturadas.
 
@@ -517,7 +517,7 @@ end function
 ---
 
 <a name="message-chains"></a>
-## Message Chains (VALIDAR)
+## Message Chains
 
 Cadeia longa de chamadas entre objetos (ex: `a().b().c()`).
 
@@ -816,7 +816,7 @@ sle_cpf.text = cliente.of_formatar_cpf()
 ---
 
 <a name="repeated-switches"></a>
-## Repeated Switches (VALIDAR)
+## Repeated Switches
 
 Repetição da mesma estrutura `switch` ou `case` em vários lugares.
 
@@ -1349,21 +1349,100 @@ end function
 <a name="event-cascade-smell"></a>
 ## Event Cascade Smell
 
-Eventos que chamam outros eventos de forma encadeada (por exemplo, Clicked() chamando ItemChanged() manualmente).
+Ocorre quando um evento dispara outro evento de forma implícita ou encadeada, criando uma cadeia de execuções não controlada entre eventos (por exemplo, o evento _Clicked_ de um botão chama o evento _ItemChanged_ de um DataWindow, que por sua vez aciona outro evento).
+Esse comportamento torna o fluxo de execução **difícil de entender, prever e depurar**.
 
 ### 🧠 Problemas causados
 
-Difícil de entender e depurar; ordem de execução pode gerar efeitos colaterais inesperados.
+- O fluxo de execução fica imprevisível, dificultando a identificação da origem de erros.
+- Um pequeno ajuste em um evento pode causar efeitos colaterais em várias partes da interface.
+- Viola o princípio de baixo acoplamento, pois eventos passam a depender uns dos outros.
+- Torna o código mais frágil e difícil de testar isoladamente.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-Extrair a lógica para métodos isolados e chamar diretamente, sem dependência entre eventos.
+Evitar chamar eventos diretamente (_TriggerEvent()_ ou _PostEvent()_) entre objetos visuais.
+
+Extrair a lógica de negócio dos eventos para métodos dedicados em _Non-Visual Objects (NVOs)_.
+
+Usar uma abordagem clara de delegação de responsabilidades, em que cada evento apenas aciona métodos específicos — sem depender de outros eventos para completar o fluxo.
 
 ### 🔎 Exemplo com Event Cascade Smell
 
+```pascal
+// --- Evento Clicked do botão "Salvar" ---
+dw_Dados.AcceptText()
+dw_Dados.Event ItemChanged() // Chama explicitamente outro evento
+
+// --- Evento ItemChanged da DataWindow ---
+If dw_Dados.GetItemStatus(Row, "status", Primary!) = DataModified! Then
+	dw_Dados.Event ue_Validar_Dados() // Encadeia outro evento
+End If
+
+// --- Evento ue_validar_dados() ---
+If dw_Dados.GetItemString(Row, "nome") = "" Then
+	MessageBox("Erro", "Campo nome é obrigatório.")
+End If
+```
+
+Neste exemplo, o clique no botão dispara o evento _ItemChanged_, que por sua vez chama outro evento (_ue_Validar_Dados_).
+
+O fluxo de execução passa a depender de múltiplas chamadas indiretas, tornando o comportamento da tela **difícil de prever e depurar**.
+
 ### ✨ Exemplo Refatorado
 
+```pascal
+// --- Evento Clicked do botão "Salvar" ---
+n_Servico_Dados lnv_Dados
+Create lnv_Dados
+
+Try
+	lnv_Dados.of_Salvar_Dados(dw_Dados)
+Finally
+	Destroy lnv_Dados
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Dados ---
+
+public function integer of_Salvar_Dados (DataWindow adw_Dados)
+	adw_Dados.AcceptText()
+	
+	If of_Validar_Dados(adw_Dados) = 1 Then
+		adw_Dados.Update()
+		COMMIT USING SQLCA;
+		MessageBox("Sucesso", "Dados salvos com sucesso.")
+		Return 1
+	Else
+		ROLLBACK USING SQLCA;
+		Return -1
+	End If
+end function
+
+private function integer of_Validar_Dados (DataWindow adw_Dados)
+	Long ll_Row
+
+	ll_Row = adw_Dados.GetRow()
+
+	If adw_Dados.GetItemString(ll_Row, "nome") = "" Then
+		MessageBox("Erro", "Campo nome é obrigatório.")
+		Return -1
+	End If
+
+	Return 1
+end function
+```
+
+Neste exemplo refatorado, o **fluxo é linear e previsível**: o evento _Clicked_ chama apenas um método (_of_Salvar_Dados_) que centraliza toda a lógica — sem dependência entre eventos.
+
 ### 📈 Benefícios da Refatoração
+
+- Elimina dependências ocultas entre eventos.
+- Facilita a leitura, depuração e manutenção do código.
+- Melhora a testabilidade, pois a lógica é movida para métodos isolados.
+- Aumenta a previsibilidade e reduz efeitos colaterais.
+- Garante um fluxo de execução controlado e de fácil rastreio.
 
 [Voltar ao início](#sumário)
 
