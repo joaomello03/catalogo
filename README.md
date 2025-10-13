@@ -10,7 +10,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 3. [Duplicated Code](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicated-code)
 4. [Large Class (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
 5. [Feature Envy](https://github.com/joaomello03/catalogo/blob/main/README.md#feature-envy)
-6. [Message Chains (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
+6. [Message Chains](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
 7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
 8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
 9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
@@ -518,35 +518,109 @@ end function
 <a name="message-chains"></a>
 ## Message Chains
 
-Cadeia longa de chamadas entre objetos (ex: `a().b().c()`).
+Ocorre quando um objeto acessa uma longa cadeia de chamadas para alcançar outro objeto ou método, como _obj_a.of_get_b().of_get_c().of_get_d()_.
+Esse padrão cria um forte **acoplamento entre classes** e viola a **Lei de Deméter** (“não fale com estranhos”).
+Em PowerScript, isso aparece com frequência quando uma janela ou DataWindow acessa diretamente métodos de objetos internos de serviços, controladores ou repositórios.
 
 ### 🧠 Problemas causados
 
-- Alta fragilidade a mudanças internas.
-- Código difícil de entender.
+- Excesso de acoplamento entre camadas (UI, serviço, repositório).
+- Viola o encapsulamento, expondo detalhes internos da hierarquia de objetos.
+- Pequenas mudanças em classes internas quebram várias partes do código cliente.
+- Torna o código mais difícil de entender e testar isoladamente.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Hide Delegate** – encapsular a cadeia em um método intermediário.
+Aplicar a refatoração **Hide Delegate**, a ideia é ocultar a delegação criando métodos intermediários que encapsulam o acesso aos objetos internos.
+
+Assim, o cliente não precisa conhecer a cadeia de dependências — ele interage apenas com a fachada principal, que encaminha as chamadas internamente.
+
+Essa abordagem reduz o acoplamento e simplifica o relacionamento entre objetos.
 
 ### 🔎 Exemplo com Message Chains
 
 ```pascal
-string cidade = this.of_get_empregado().of_get_endereco().of_get_cidade()
+// --- Script no evento ue_Processar() de uma janela ---
+
+n_Servico_Processar lnv_Processar
+String ls_NomeCliente
+
+Create lnv_Processar
+
+// Cadeia longa de chamadas — viola a Lei de Deméter
+ls_NomeCliente = lnv_Processar.of_Get_Servico_Vendas().of_Get_Repositorio_Cliente().of_Get_Cliente_Nome(sle_Id_Cliente.Text)
+
+MessageBox("Cliente", "Nome: " + ls_NomeCliente)
+
+Destroy lnv_Processar
 ```
+
+Neste caso, a janela conhece detalhes demais da estrutura interna do sistema (_serviço → repositório → cliente_). Qualquer mudança em um desses níveis obrigaria alterações na interface da janela.
+
 
 ### ✨ Exemplo Refatorado
 
 ```pascal
-function string of_get_cidade_empregado()
-    return this.empregado.of_get_endereco().of_get_cidade()
+// --- Evento ue_Processar() da janela ---
+
+n_Servico_Processar lnv_Processar
+String ls_NomeCliente
+
+Create lnv_Processar
+
+Try
+	ls_NomeCliente = lnv_Processar.of_Obter_Nome_Cliente(sle_ID_Cliente.Text)
+	MessageBox("Cliente", "Nome: " + ls_NomeCliente)
+Finally
+	Destroy lnv_Processar
+End Try
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Processar ---
+
+// Método criado para ocultar a delegação — aplica Hide Delegate
+public function string of_Obter_Nome_Cliente (Long al_IdCliente)
+	Return of_Get_Servico_Vendas().of_Obter_Nome_Cliente(al_IdCliente)
+end function
+
+public function n_servico_vendas of_Get_Servico_Vendas ()
+	Return inv_Servico_Vendas
 end function
 ```
 
+```pascal
+// --- Non-Visual Object: n_Servico_Vendas ---
+
+public function string of_Obter_Nome_Cliente (Long al_IdCliente)
+	Return of_Get_Repositorio_Cliente().of_Get_Cliente_Nome(al_IdCliente)
+end function
+
+public function n_repositorio_cliente of_Get_Repositorio_Cliente ()
+	Return inv_Repositorio_Cliente
+end function
+```
+
+```pascal
+// --- Non-Visual Object: n_Repositorio_Cliente ---
+
+public function string of_Get_Cliente_Nome (Long al_IdCliente)
+	String ls_Nome
+
+	SELECT NOME INTO :ls_Nome FROM CLIENTE WHERE ID = :al_IdCliente USING SQLCA;
+
+	Return ls_Nome
+end function
+```
+
+Agora, a janela conversa apenas com _n_Servico_Processar_, que oculta toda a delegação interna. Mesmo que o serviço ou o repositório mudem, a interface da janela continua estável.
+
 ### 📈 Benefícios da Refatoração
 
-- Reduz acoplamento.
-- Facilita refatorações futuras.
+- Aplica corretamente o **Hide Delegate**, reduzindo o acoplamento.
+- Encapsula detalhes internos e protege o código cliente contra mudanças estruturais.
+- Facilita testes unitários e evolução modular do sistema.
+- Segue a **Lei de Deméter**, mantendo comunicações mais diretas e seguras entre camadas.
 
 [Voltar ao início](#sumário)
 
