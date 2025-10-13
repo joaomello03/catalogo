@@ -14,7 +14,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
 8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
 9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
-10. [Repeated Switches (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
+10. [Repeated Switches](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
 11. [Overloaded Window Script](https://github.com/joaomello03/catalogo/blob/main/README.md#overloaded-window-script)
 12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
 13. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
@@ -817,49 +817,132 @@ sle_cpf.text = cliente.of_formatar_cpf()
 <a name="repeated-switches"></a>
 ## Repeated Switches
 
-Repetição da mesma estrutura `switch` ou `case` em vários lugares.
+Ocorre quando múltiplos blocos _CHOOSE CASE (ou IF...ELSE IF...)_ são usados repetidamente em diferentes partes do código para tomar decisões baseadas no mesmo tipo de valor. Essa repetição indica falta de abstração e torna o sistema mais difícil de manter e evoluir.
 
 ### 🧠 Problemas causados
 
-- Duplicação de código.
-- Dificuldade para manutenção.
+- Viola o princípio **DRY (Don’t Repeat Yourself)**.
+- Qualquer alteração na lógica exige modificar vários pontos do sistema.
+- Aumenta o risco de inconsistências entre blocos semelhantes.
+- Dificulta a extensão do código para novos tipos ou casos.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Replace Conditional with Polymorphism** ou **Strategy Pattern**.
+Substituir estruturas repetitivas por **polimorfismo** (via _Non-Visual Objects (NVOs)_ especializados), **tabelas de decisão** ou **métodos centralizados**.
+Criar uma hierarquia de objetos que encapsule a lógica de cada tipo de caso, evitando duplicação e facilitando manutenção.
 
 ### 🔎 Exemplo com Repeated Switches
 
 ```pascal
-choose case tipo_usuario
-case "admin"
-    of_permissao_admin()
-case "cliente"
-    of_permissao_cliente()
-end choose
+// --- Evento Clicked do botão "Processar" ---
+String ls_Tipo = sle_Tipo.Text
 
-choose case tipo_usuario
-case "admin"
-    of_log_admin()
-case "cliente"
-    of_log_cliente()
-end choose
+Choose Case ls_Tipo
+	Case "V"
+		MessageBox("Venda", "Processando venda...")
+	Case "C"
+		MessageBox("Compra", "Processando compra...")
+	Case "E"
+		MessageBox("Estoque", "Atualizando estoque...")
+	Case Else
+		MessageBox("Erro", "Tipo desconhecido.")
+End Choose
+
+// Outro ponto do sistema (relatório)
+Choose Case ls_Tipo
+	Case "V"
+		ls_Titulo = "Relatório de Vendas"
+	Case "C"
+		ls_Titulo = "Relatório de Compras"
+	Case "E"
+		ls_Titulo = "Relatório de Estoque"
+	Case Else
+		ls_Titulo = "Relatório Desconhecido"
+End Choose
 ```
+
+Neste exemplo, a decisão baseada em _ls_Tipo_ é repetida em diferentes partes do sistema. Se for adicionado um novo tipo (“Devolução”, por exemplo), será necessário atualizar todos os blocos _CHOOSE CASE_ manualmente.
 
 ### ✨ Exemplo Refatorado
 
 ```pascal
-nvo_usuario usuario
-usuario.tipo = "admin"
-usuario.executar_permissao()
-usuario.registrar_log()
+// --- Evento Clicked do botão "Processar" ---
+n_Operacao lnv_Operacao
+Create lnv_Operacao
+
+Try
+	lnv_Operacao.of_Executar_Operacao(sle_Tipo.Text)
+Finally
+	Destroy lnv_Operacao
+End Try
 ```
+
+```pascal
+// --- Non-Visual Object: n_Operacao ---
+
+public function integer of_Executar_Operacao (String as_Tipo)
+	n_Operacao_Base lnv_Handler
+	lnv_Handler = of_Get_Handler(as_Tipo)
+	
+	If Not IsValid(lnv_Handler) Then
+		MessageBox("Erro", "Tipo de operação inválida.")
+		Return -1
+	End If
+	
+	lnv_Handler.of_Executar()
+	Destroy lnv_Handler
+	Return 1
+end function
+
+private function n_operacao_base of_Get_Handler (String as_Tipo)
+	Choose Case as_Tipo
+		Case "V"
+			Return Create n_Operacao_Venda
+		Case "C"
+			Return Create n_Operacao_Compra
+		Case "E"
+			Return Create n_Operacao_Estoque
+		Case Else
+			Return Null
+	End Choose
+end function
+```
+
+```pascal
+// --- Classe base: n_Operacao_Base ---
+public subroutine of_Executar()
+	// Método sobrescrito nas subclasses
+end subroutine
+
+
+// --- Subclasse: n_Operacao_Venda ---
+public subroutine of_Executar()
+	MessageBox("Venda", "Processando venda...")
+end subroutine
+
+
+// --- Subclasse: n_Operacao_Compra ---
+public subroutine of_Executar()
+	MessageBox("Compra", "Processando compra...")
+end subroutine
+
+
+// --- Subclasse: n_Operacao_Estoque ---
+public subroutine of_Executar()
+	MessageBox("Estoque", "Atualizando estoque...")
+end subroutine
+```
+
+Neste exemplo, o comportamento específico é **delegado a classes especializadas**, eliminando a repetição de blocos _CHOOSE CASE_ espalhados.
+Adicionar uma nova operação agora requer apenas criar uma nova subclasse — sem modificar código existente.
 
 ### 📈 Benefícios da Refatoração
 
-- Reduz duplicação.
-- Permite extensão fácil.
-- Código mais organizado.
+- Elimina duplicação de código e blocos de decisão redundantes.
+- Facilita a adição de novos comportamentos sem alterar código existente.
+- Centraliza a lógica de decisão, reduzindo erros e inconsistências.
+- Melhora a legibilidade e a extensibilidade da aplicação.
+- Adere aos princípios de **Polimorfismo**.
 
 [Voltar ao início](#sumário)
 
