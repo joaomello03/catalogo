@@ -8,7 +8,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
 2. [Long Function](https://github.com/joaomello03/catalogo/blob/main/README.md#long-function)
 3. [Duplicated Code](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicated-code)
-4. [Large Class (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
+4. [Large Class](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
 5. [Feature Envy](https://github.com/joaomello03/catalogo/blob/main/README.md#feature-envy)
 6. [Message Chains](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
 7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
@@ -387,50 +387,148 @@ end function
 <a name="large-class"></a>
 ## Large Class
 
-Classes com responsabilidades demais, comum em janelas PowerScript com lógica de UI, banco de dados e regras de negócio misturadas.
+Ocorre quando uma classe (por exemplo, um _Non-Visual Object — NVO_) acumula **responsabilidades demais** ou contém **muitos métodos e atributos**.
+Isso torna o código difícil de entender, manter e testar, já que a classe concentra lógicas que deveriam estar distribuídas entre múltiplos objetos.
+
+Em PowerScript, é comum encontrar esse problema em _Non-Visual Objects — NVOs_ genéricos, que acabam se tornando “_classes deus_” (_God Objects_).
 
 ### 🧠 Problemas causados
 
-- Viola o princípio da responsabilidade única (SRP – _Single Responsibility Principle_).
-- Código difícil de entender, testar e manter.
+- Viola o **Princípio da Responsabilidade Única (SRP)**.
+- Dificulta a manutenção, pois qualquer mudança pode impactar múltiplas áreas.
+- Gera dependências desnecessárias entre funcionalidades sem relação direta.
+- Reduz a capacidade de reutilização e testabilidade.
+- Aumenta o tempo de entendimento para novos desenvolvedores.
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-**Extract Class** – mover responsabilidades para objetos auxiliares.
+Aplicar a refatoração **Extract Class** (Extrair Classe) — separar responsabilidades em classes menores e coesas.
+Cada classe deve focar em uma funcionalidade específica (por exemplo, Gestão de Cliente, Gestão de Vendas, Relatórios).
+
+Além disso, é possível aplicar **Move Method** para transferir lógicas diretamente para as novas classes criadas.
 
 ### 🔎 Exemplo com Large Class
 
 ```pascal
-window w_funcionario
-    string nome
-    integer idade
-    decimal salario
-    subroutine calcular_salario()
-    subroutine validar_campos()
-    subroutine salvar_dados()
-end window
+// --- Non-Visual Object: n_Gerenciador ---
+// Exemplo de classe "inchada", com múltiplas responsabilidades
+
+public function integer of_Salvar_Cliente (DataWindow adw_Cliente)
+	adw_Cliente.Update()
+	COMMIT USING SQLCA;
+	Return 1
+end function
+
+public function integer of_Gerar_Relatorio_Vendas ()
+	String ls_SQL
+
+	ls_SQL = "SELECT * FROM VENDAS WHERE DATA >= TODAY() - 30"
+	EXECUTE IMMEDIATE :ls_SQL USING SQLCA;
+
+	Return 1
+end function
+
+public function integer of_Enviar_Email (String as_Destinatario, String as_Mensagem)
+	// Simulação de envio de e-mail
+	MessageBox("E-mail enviado", "Para: " + as_Destinatario + "~r~nMensagem: " + as_Mensagem)
+	Return 1
+end function
+
+public function decimal of_Calcular_Desconto (Decimal ade_Valor, Integer ai_Percentual)
+	Return ade_Valor - (ade_Valor * ai_Percentual / 100)
+end function
+
+public function integer of_Gerar_Backup ()
+	// Simulação de backup
+	MessageBox("Backup", "Backup concluído com sucesso.")
+	Return 1
+end function
 ```
+
+Neste exemplo, _n_Gerenciador_ centraliza várias funções sem relação direta — cliente, vendas, e-mail, cálculo e backup. A classe está sobrecarregada e viola o princípio de responsabilidade única.
 
 ### ✨ Exemplo Refatorado
 
 ```pascal
-nonvisualobject nvo_funcionario
-    string nome
-    integer idade
-    decimal salario
-    function boolean validar()
-    function decimal calcular_salario()
-end object
-
-window w_funcionario
-    nvo_funcionario funcionario
-end window
+// --- Non-Visual Object: n_Servico_Cliente ---
+public function integer of_Salvar_Cliente (DataWindow adw_Cliente)
+	adw_Cliente.Update()
+	COMMIT USING SQLCA;
+	Return 1
+end function
 ```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Vendas ---
+public function integer of_Gerar_Relatorio_Vendas ()
+	String ls_SQL
+
+	ls_SQL = "SELECT * FROM VENDAS WHERE DATA >= TODAY() - 30"
+	EXECUTE IMMEDIATE :ls_SQL USING SQLCA;
+
+	Return 1
+end function
+
+public function decimal of_Calcular_Desconto (Decimal ade_Valor, Integer ai_Percentual)
+	Return ade_Valor - (ade_Valor * ai_Percentual / 100)
+end function
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Email ---
+public function integer of_Enviar_Email (String as_Destinatario, String as_Mensagem)
+	// Simulação de envio de e-mail
+	MessageBox("E-mail enviado", "Para: " + as_Destinatario + "~r~nMensagem: " + as_Mensagem)
+	Return 1
+end function
+```
+
+```pascal
+// --- Non-Visual Object: n_Servico_Backup ---
+public function integer of_Gerar_Backup ()
+	// Simulação de backup
+	MessageBox("Backup", "Backup concluído com sucesso.")
+	Return 1
+end function
+```
+
+```pascal
+// --- Non-Visual Object: n_Gerenciador (refatorado) ---
+// Centraliza a orquestração, delegando responsabilidades específicas
+
+n_Servico_Cliente    inv_Cliente
+n_Servico_Vendas     inv_Vendas
+n_Servico_Email      inv_Email
+n_Servico_Backup     inv_Backup
+
+public function integer of_Inicializar ()
+	Create inv_Cliente
+	Create inv_Vendas
+	Create inv_Email
+	Create inv_Backup
+
+	Return 1
+end function
+
+public function integer of_Finalizar ()
+	Destroy inv_Cliente
+	Destroy inv_Vendas
+	Destroy inv_Email
+	Destroy inv_Backup
+
+	Return 1
+end function
+```
+
+Agora, o _n_Gerenciador_ atua apenas como coordenador, enquanto as classes menores são focadas e reutilizáveis.
 
 ### 📈 Benefícios da Refatoração
 
-- Redução da complexidade.
-- Código mais organizado e testável.
+- Cada classe possui uma responsabilidade única e bem definida.
+- Reduz a complexidade e facilita a leitura e manutenção.
+- Melhora a testabilidade e a modularidade do sistema.
+- Facilita a reutilização de componentes em diferentes janelas e contextos.
+- Diminui o risco de efeitos colaterais ao alterar uma funcionalidade.
 
 [Voltar ao início](#sumário)
 
