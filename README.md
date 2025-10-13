@@ -23,7 +23,9 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 16. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 17. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
 18. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-19. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+19. [Communication Object (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
+20. [Public Field (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
+21. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -1859,6 +1861,169 @@ Neste exemplo refatorado, os eventos não utilizados foram removidos e sua lógi
 - Facilita o rastreamento do fluxo de execução da interface.
 - Garante que cada evento existente tem um propósito claro e ativo.
 - Contribui para uma base de código mais enxuta, consistente e de fácil manutenção.
+
+[Voltar ao início](#sumário)
+
+---
+
+# [Novos]
+
+---
+
+<a name="communication-bject"></a>
+## Communication Object
+
+Ocorre quando o código utiliza objetos de comunicação legados do PowerBuilder, como _SOAP_ ou _INET_, para consumo de serviços externos.
+Esses objetos estão obsoletos e não são mais suportados em versões recentes do PowerBuilder, podendo causar instabilidade, falhas silenciosas e comportamento inesperado.
+
+### 🧠 Problemas causados
+
+- Instabilidade e erros imprevisíveis em tempo de execução.
+- Dificuldade de depuração e manutenção.
+- Falhas de compatibilidade ao migrar para versões novas do PowerBuilder.
+- Maior risco de vulnerabilidades de segurança em conexões externas.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Substituir o uso de _SOAP_ e _INET_ por objetos mais modernos e suportados, como:
+- _HTTPClient_ — para chamadas _REST/HTTP_ seguras e estáveis.
+- _Web Service Proxy_ — para serviços _SOAP_ com suporte nativo e forte tipagem.
+
+Essas abordagens garantem compatibilidade, melhor desempenho e maior segurança.
+
+### 🔎 Exemplo com Communication Object
+
+```pascal
+// --- Uso do objeto INET (obsoleto) ---
+Inet li_Inet
+String ls_HTML
+
+li_Inet = Create Inet
+li_Inet.RequestMethod = "GET"
+li_Inet.ConnectToServer("https://api.meuservico.com")
+ls_HTML = li_Inet.GetURL("https://api.meuservico.com/clientes")
+
+Destroy li_Inet
+
+MessageBox("Resultado", ls_HTML)
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+// --- Uso do objeto HTTPClient ---
+String ls_Response
+Integer li_RC
+HttpClient lnv_Http
+
+lnv_Http = Create HttpClient
+
+li_RC = lnv_Http.SendRequest("GET", "https://api.meuservico.com/clientes")
+If li_RC = 1 Then
+	lnv_Http.GetResponseBody(ls_Response)
+	MessageBox("Resultado", ls_Response)
+Else
+	MessageBox("Erro", "Falha ao acessar o serviço.")
+End If
+
+Destroy lnv_Http
+```
+
+O código refatorado é **mais seguro, legível e compatível**, utilizando o objeto _HttpClient_ que é nativo e plenamente suportado.
+
+### 📈 Benefícios da Refatoração
+
+- Elimina dependência de APIs legadas (_INET, SOAP_).
+- Melhora o tratamento de erros e a segurança nas chamadas HTTP.
+- Facilita o consumo de APIs REST modernas.
+- Reduz riscos de falhas e comportamento inesperado.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="public-field"></a>
+## Public Field
+
+Esse mau cheiro ocorre quando variáveis de instância são declarados como **públicos**, permitindo que qualquer código externo leia e modifique diretamente o estado interno de um objeto (_Windows, UserObjects, Non-Visual Objects — NVOs_ etc.). Em PowerScript isso costuma aparecer quando usa-se _public:_ para variáveis que deveriam ser _private:_ ou _protected:_, quebrando o encapsulamento e tornando o comportamento do sistema imprevisível.
+
+### 🧠 Problemas causados
+
+- Quebra do encapsulamento e violação do **Princípio da Responsabilidade Única (SRP)**.
+- Aumento do acoplamento entre componentes (outros objetos passam a depender do estado interno).
+- Possibilidade de alterações indevidas no estado do objeto sem validação (efeitos colaterais).
+- Dificulta testes unitários e manutenção (validação espalhada pelo código).
+- Potencial risco de segurança e inconsistência de dados.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Aplicar a refatoração **Encapsulate Field**: tornar os campos _private_ (ou _protected_) e expor acesso controlado por métodos públicos ou por operações específicas que validem e normalizem os valores.
+
+### 🔎 Exemplo com Public Field
+
+```pascal
+// --- Non-Visual Object — NVO com campos públicos ---
+public type n_cliente from nonvisualobject
+public string is_nome
+public integer ii_idade
+
+public subroutine of_definir_dados (string as_nome, integer ai_idade)
+    is_nome = as_nome
+    ii_idade = ai_idade
+end subroutine
+end type
+
+// Uso em outro lugar
+n_cliente lnv_cliente
+lnv_cliente = create n_cliente
+lnv_cliente.is_nome = "Ana"        // Acesso direto — sem validação
+lnv_cliente.ii_idade = -5          // Valor inválido permitido
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+// --- Non-Visual Object — NVO com encapsulamento ---
+public type n_cliente from nonvisualobject
+private string is_nome
+private integer ii_idade
+
+public subroutine of_definir_dados (string as_nome, integer ai_idade)
+    // validação centralizada
+    IF Trim(as_nome) = "" THEN
+        RAISE EXCEPTION CreateException("Nome é obrigatório.")
+    END IF
+    IF ai_idade < 0 THEN
+        RAISE EXCEPTION CreateException("Idade inválida.")
+    END IF
+
+    is_nome = as_nome
+    ii_idade = ai_idade
+end subroutine
+
+public function string of_obter_nome()
+    return is_nome
+end function
+
+public function integer of_obter_idade()
+    return ii_idade
+end function
+end type
+
+// Uso seguro
+n_cliente lnv_cliente
+lnv_cliente = create n_cliente
+lnv_cliente.of_definir_dados("Ana", 30)
+MessageBox("Cliente", "Nome: " + lnv_cliente.of_obter_nome() + "~r~nIdade: " + string(lnv_cliente.of_obter_idade()))
+```
+
+### 📈 Benefícios da Refatoração
+
+- Protege o estado interno do objeto e mantém invariantes.
+- Centraliza validações, evitando duplicação e comportamentos inconsistentes.
+- Reduz acoplamento e efeitos colaterais; facilita refatorações futuras.
+- Melhora a testabilidade e a previsibilidade do comportamento do sistema.
+- Aumenta a segurança e a robustez do código.
 
 [Voltar ao início](#sumário)
 
