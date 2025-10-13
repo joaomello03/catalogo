@@ -17,14 +17,13 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 10. [Repeated Switches (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
 11. [Overloaded Window Script](https://github.com/joaomello03/catalogo/blob/main/README.md#overloaded-window-script)
 12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
-13. [NVO Bloat (NVO Gigante) (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#nvo-bloat)
-14. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
-15. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
-16. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
-17. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
-18. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
-19. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-20. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+13. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
+14. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
+15. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
+16. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
+17. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
+18. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
+19. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -1039,30 +1038,6 @@ end function
 - Manutenções futuras podem ser feitas sem abrir o editor visual.
 - Reduz duplicação de lógica entre diferentes DataWindows.
 - Facilita a implementação de testes automatizados e a evolução do sistema.
-
-[Voltar ao início](#sumário)
-
----
-
-<a name="nvo-bloat"></a>
-## NVO Bloat (NVO Gigante)
-
-Objetos não visuais que centralizam toda a lógica da aplicação — muitas vezes virando “God Objects”.
-
-### 🧠 Problemas causados
-
-Responsabilidades múltiplas, difícil de manter e testar.
-Pequenas alterações podem quebrar várias funcionalidades.
-
-### 🛠️ Solução/Refatoração Recomendada
-
-Dividir o NVO em serviços menores e especializados (Extract NVO, Facade Pattern).
-
-### 🔎 Exemplo com NVO Bloat (NVO Gigante)
-
-### ✨ Exemplo Refatorado
-
-### 📈 Benefícios da Refatoração
 
 [Voltar ao início](#sumário)
 
