@@ -412,7 +412,7 @@ Cada classe deve focar em uma funcionalidade específica (por exemplo, Gestão d
 
 Além disso, é possível aplicar **Move Method** para transferir lógicas diretamente para as novas classes criadas.
 
-### 🔎 Exemplo com Large Class
+### 🔎 Exemplo de Código com Large Class
 
 ```pascal
 // --- Non-Visual Object: n_Gerenciador ---
@@ -640,7 +640,7 @@ Assim, o cliente não precisa conhecer a cadeia de dependências — ele interag
 
 Essa abordagem reduz o acoplamento e simplifica o relacionamento entre objetos.
 
-### 🔎 Exemplo com Message Chains
+### 🔎 Exemplo de Código com Message Chains
 
 ```pascal
 // --- Script no evento ue_Processar() de uma janela ---
@@ -1008,7 +1008,7 @@ Ocorre quando múltiplos blocos _CHOOSE CASE (ou IF...ELSE IF...)_ são usados r
 Substituir estruturas repetitivas por **polimorfismo** (via _Non-Visual Objects (NVOs)_ especializados), **tabelas de decisão** ou **métodos centralizados**.
 Criar uma hierarquia de objetos que encapsule a lógica de cada tipo de caso, evitando duplicação e facilitando manutenção.
 
-### 🔎 Exemplo com Repeated Switches
+### 🔎 Exemplo de Código com Repeated Switches
 
 ```pascal
 // --- Evento Clicked do botão "Processar" ---
@@ -1146,7 +1146,7 @@ Scripts de eventos (como _open, clicked, itemchanged_) acumulam muita lógica de
 Mover a lógica de negócio para _Non-Visual Objects (NVOs)_, que podem ser chamados a partir dos eventos visuais.
 Aplicar o padrão de _event routing_ — isto é, o evento da interface apenas delega a ação para um método especializado.
 
-### 🔎 Exemplo com Overloaded Window Script
+### 🔎 Exemplo de Código com Overloaded Window Script
 
 ```pascal
 // --- Evento Clicked() da janela w_Vendas ---
@@ -1245,7 +1245,7 @@ Regras de negócio, cálculos e validações implementadas diretamente em expres
 Extrair a lógica de negócio das expressões e eventos do DataWindow e movê-la para _Non-Visual Objects (NVOs)_.
 Utilizar métodos de validação e cálculo fora do objeto visual, deixando o DataWindow apenas responsável pela exibição e manipulação de dados.
 
-### 🔎 Exemplo com DataWindow Logic Smell
+### 🔎 Exemplo de Código com DataWindow Logic Smell
 
 ```pascal
 // --- Evento ItemChanged() dentro do DataWindow dw_Funcionario ---
@@ -1321,7 +1321,7 @@ Remover valores fixos do código e carregá-los dinamicamente a partir de **arqu
 
 Criar um objeto responsável por gerenciar as configurações de conexão e caminhos de forma centralizada.
 
-### 🔎 Exemplo com Hardcoded Paths or Connection Strings
+### 🔎 Exemplo de Código com Hardcoded Paths or Connection Strings
 
 ```pascal
 // --- Script no evento Open() da aplicação ---
@@ -1429,7 +1429,7 @@ Utilizar blocos **TRY...FINALLY** para assegurar a liberação mesmo em caso de 
 
 Centralizar a criação e destruição de objetos em serviços de controle ou métodos auxiliares, especialmente para DataStores e _Non-Visual Objects (NVOs)_.
 
-### 🔎 Exemplo com Unmanaged Object Lifetime
+### 🔎 Exemplo de Código com Unmanaged Object Lifetime
 
 ```pascal
 // --- Script de processamento em um botão de janela ---
@@ -1510,7 +1510,7 @@ Instruções SQL podem ser escritas diretamente dentro dos scripts PowerScript (
 Mover instruções SQL para DataWindows, DataStores ou _Non-Visual Objects (NVOs)_ especializados em acesso a dados.
 Usar binding de variáveis (via argumentos ou parâmetros) em vez de concatenar strings SQL diretamente.
 
-### 🔎 Exemplo com SQL Embedded in Script
+### 🔎 Exemplo de Código com SQL Embedded in Script
 
 ```pascal
 // --- Script de um botão para atualizar o status de um pedido ---
@@ -1602,7 +1602,7 @@ Extrair a lógica de negócio dos eventos para métodos dedicados em _Non-Visual
 
 Usar uma abordagem clara de delegação de responsabilidades, em que cada evento apenas aciona métodos específicos — sem depender de outros eventos para completar o fluxo.
 
-### 🔎 Exemplo com Event Cascade Smell
+### 🔎 Exemplo de Código com Event Cascade Smell
 
 ```pascal
 // --- Evento Clicked do botão "Salvar" ---
@@ -1702,7 +1702,7 @@ Centralizar o uso de DataWindows reutilizáveis, criando objetos genéricos para
 
 Evitar criar novos objetos para pequenas variações — prefira configuração dinâmica via SetSQLSelect() e Modify().
 
-### 🔎 Exemplo com Duplicate DataWindow Objects
+### 🔎 Exemplo de Código com Duplicate DataWindow Objects
 
 ```pascal
 // --- d_Cliente_Listagem - Exibe clientes ativos ---
@@ -1790,7 +1790,7 @@ Esses scripts permanecem no código sem propósito, acumulando complexidade e co
 - Consolidar lógica redundante em métodos ativos ou _Non-Visual Objects (NVOs)_.
 - Utilizar revisões de código e ferramentas de análise estática para identificar scripts não referenciados.
 
-### 🔎 Exemplo com Unused Event Scripts
+### 🔎 Exemplo de Código com Unused Event Scripts
 
 ```pascal
 // --- Evento ue_Validate() no UserObject uo_Cliente ---
@@ -1894,7 +1894,7 @@ Substituir o uso de _SOAP_ e _INET_ por objetos mais modernos e suportados, como
 
 Essas abordagens garantem compatibilidade, melhor desempenho e maior segurança.
 
-### 🔎 Exemplo com Communication Object
+### 🔎 Exemplo de Código com Communication Object
 
 ```pascal
 // --- Uso do objeto INET (obsoleto) ---
@@ -1962,7 +1962,7 @@ Esse mau cheiro ocorre quando variáveis de instância são declarados como **p�
 
 Aplicar a refatoração **Encapsulate Field**: tornar os campos _private_ (ou _protected_) e expor acesso controlado por métodos públicos ou por operações específicas que validem e normalizem os valores.
 
-### 🔎 Exemplo com Public Field
+### 🔎 Exemplo de Código com Public Field
 
 ```pascal
 // --- Non-Visual Object — NVO com campos públicos ---
@@ -2051,7 +2051,7 @@ Em vez disso, deve-se utilizar estruturas de controle como _FOR_, _WHILE_ ou sub
 Substituir o uso de _GOTO_ por estruturas de repetição ou condicionais apropriadas (_FOR, WHILE, DO...LOOP_).
 Em casos mais complexos, extrair a lógica em **funções ou métodos especializados**, evitando saltos manuais no fluxo do código.
 
-### 🔎 Exemplo com GOTO Backward Jump
+### 🔎 Exemplo de Código com GOTO Backward Jump
 
 ```pascal
 Integer li_Total, li_Iterador
@@ -2117,7 +2117,7 @@ Enquanto _Destroy(lo_objeto)_ destrói o objeto **imediatamente**, a forma _Dest
 Utilizar sempre a forma _Destroy(lo_objeto)_ para garantir a destruição imediata e previsível do objeto.
 Evitar o uso de _Destroy lo_objeto_, que depende da execução posterior do _garbage collector_ interno do PowerBuilder.
 
-### 🔎 Exemplo com Improper Use of Destroy Function
+### 🔎 Exemplo de Código com Improper Use of Destroy Function
 
 ```pascal
 n_Cliente lnv_Cliente
@@ -2167,7 +2167,7 @@ Em PowerScript, o uso frequente do _.Object_ em DataWindows ou DataStores para a
 
 Evitar o uso direto de _.Object_ sempre que possível. Prefira utilizar os métodos _GetItem()_ e _SetItem()_ para buscar ou definir valores nas colunas. Esses métodos são mais seguros, verificáveis e oferecem melhor desempenho, especialmente em operações repetitivas ou críticas.
 
-### 🔎 Exemplo com DataWindow Object Reference
+### 🔎 Exemplo de Código com DataWindow Object Reference
 
 ```pascal
 // --- Exemplo com problema de performance ---
@@ -2216,7 +2216,7 @@ Agora, o código é mais eficiente e seguro. Os métodos _GetItemNumber()_ reali
 
 ### 🛠️ Solução/Refatoração Recomendada
 
-### 🔎 Exemplo com Modelo Exemplo
+### 🔎 Exemplo de Código com Modelo Exemplo
 
 ### ✨ Exemplo Refatorado
 
