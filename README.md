@@ -26,7 +26,8 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 19. [Communication Object (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
 20. [Public Field (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
 21. [GOTO Backward Jump (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
-22. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+22. [Improper Use of Destroy Function (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#improper-use-destroy)
+23. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -2093,6 +2094,57 @@ Neste exemplo, o loop _FOR_ substitui o salto manual com _GOTO_, tornando o cód
 - Evita riscos de loops infinitos e condições não controladas.
 - Melhora a manutenibilidade e previsibilidade.
 - Segue princípios da programação estruturada e limpa.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="improper-use-destroy"></a>
+## Improper Use of Destroy Function
+
+Em PowerScript, o uso incorreto do _Destroy_ pode causar comportamento inconsistente na liberação de objetos.
+Enquanto _Destroy(lo_objeto)_ destrói o objeto **imediatamente**, a forma _Destroy lo_objeto_ pode **demorar** para executar, deixando o objeto temporariamente ativo na memória.
+
+### 🧠 Problemas causados
+
+- Possibilidade de vazamento de memória ou uso indevido de objetos já destruídos.
+- Inconsistência no momento em que os recursos são realmente liberados.
+- Dificuldade de depuração, já que o comportamento pode variar dependendo do contexto de execução.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Utilizar sempre a forma _Destroy(lo_objeto)_ para garantir a destruição imediata e previsível do objeto.
+Evitar o uso de _Destroy lo_objeto_, que depende da execução posterior do _garbage collector_ interno do PowerBuilder.
+
+### 🔎 Exemplo com Improper Use of Destroy Function
+
+```pascal
+n_Cliente lnv_Cliente
+lnv_Cliente = Create n_Cliente
+
+lnv_Cliente.of_Carregar_Dados()
+
+// Uso incorreto - destruição não imediata
+Destroy lnv_Cliente
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+n_Cliente lnv_Cliente
+lnv_Cliente = Create n_Cliente
+
+lnv_Cliente.of_Carregar_Dados()
+
+// Uso correto - destruição imediata e segura
+Destroy(lnv_Cliente)
+```
+
+### 📈 Benefícios da Refatoração
+
+- Liberação imediata e previsível da memória.
+- Reduz risco de _memory leaks_ e inconsistências.
+- Melhora a performance e estabilidade do aplicativo.
 
 [Voltar ao início](#sumário)
 
