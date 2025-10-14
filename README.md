@@ -23,11 +23,11 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 16. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
 17. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
 18. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-19. [Communication Object (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
-20. [Public Field (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
-21. [GOTO Backward Jump (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
-22. [Improper Use of Destroy Function (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#improper-use-destroy)
-23. [DataWindow Object Reference (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#dataWindow-object-reference)
+19. [Communication Object](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
+20. [Public Field](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
+21. [GOTO Backward Jump](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
+22. [Improper Use of Destroy Function](https://github.com/joaomello03/catalogo/blob/main/README.md#improper-use-destroy)
+23. [DataWindow Object Reference](https://github.com/joaomello03/catalogo/blob/main/README.md#dataWindow-object-reference)
 24. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
