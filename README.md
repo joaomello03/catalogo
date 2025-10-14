@@ -25,7 +25,8 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 18. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
 19. [Communication Object (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
 20. [Public Field (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
-21. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+21. [GOTO Backward Jump (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
+22. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -2024,6 +2025,74 @@ MessageBox("Cliente", "Nome: " + lnv_cliente.of_obter_nome() + "~r~nIdade: " + s
 - Reduz acoplamento e efeitos colaterais; facilita refatorações futuras.
 - Melhora a testabilidade e a previsibilidade do comportamento do sistema.
 - Aumenta a segurança e a robustez do código.
+
+[Voltar ao início](#sumário)
+
+---
+<a name="goto-backward-jump"></a>
+## GOTO Backward Jump
+
+O uso da instrução _GOTO_ para pular para uma linha anterior no código é um mau cheiro que deve ser evitado em PowerScript.
+Esse tipo de salto cria fluxos de controle não estruturados, difíceis de entender e de manter, podendo causar confusão, loops infinitos e erros de lógica.
+Em vez disso, deve-se utilizar estruturas de controle como _FOR_, _WHILE_ ou sub-rotinas que tornem o código mais previsível e legível.
+
+### 🧠 Problemas causados
+
+- Gera fluxo de controle não estruturado (**spaghetti code**).
+- Dificulta depuração e leitura do código.
+- Pode causar loops infinitos ou condições inesperadas.
+- Quebra o fluxo lógico da aplicação e compromete a manutenibilidade.
+- Indica ausência de abstração ou de uso adequado de laços e funções.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Substituir o uso de _GOTO_ por estruturas de repetição ou condicionais apropriadas (_FOR, WHILE, DO...LOOP_).
+Em casos mais complexos, extrair a lógica em **funções ou métodos especializados**, evitando saltos manuais no fluxo do código.
+
+### 🔎 Exemplo com GOTO Backward Jump
+
+```pascal
+Integer li_Total, li_Iterador
+
+li_Total = 0
+li_Iterador = 1
+
+check_items:
+If li_Iterador > 10 Then GOTO end_loop
+
+li_Total += li_Iterador
+li_Iterador++
+
+If li_Iterador <= 10 Then GOTO check_items
+
+end_loop:
+
+MessageBox("Resultado", "Total: " + String(li_Total))
+```
+
+### ✨ Exemplo Refatorado
+
+```pascal
+Integer li_Total, li_Iterador
+
+li_Total = 0
+
+For li_Iterador = 1 To 10
+	li_Total += li_Iterador
+Next
+
+MessageBox("Resultado", "Total: " + String(li_Total))
+```
+
+Neste exemplo, o loop _FOR_ substitui o salto manual com _GOTO_, tornando o código estruturado, seguro e claro.
+
+### 📈 Benefícios da Refatoração
+
+- Elimina saltos não estruturados no fluxo do código.
+- Facilita a leitura e depuração.
+- Evita riscos de loops infinitos e condições não controladas.
+- Melhora a manutenibilidade e previsibilidade.
+- Segue princípios da programação estruturada e limpa.
 
 [Voltar ao início](#sumário)
 
