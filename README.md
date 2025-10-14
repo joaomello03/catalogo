@@ -27,7 +27,8 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 20. [Public Field (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
 21. [GOTO Backward Jump (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
 22. [Improper Use of Destroy Function (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#improper-use-destroy)
-23. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+23. [DataWindow Object Reference (VALIDAR)](https://github.com/joaomello03/catalogo/blob/main/README.md#dataWindow-object-reference)
+24. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
 
 ---
 
@@ -2145,6 +2146,64 @@ Destroy(lnv_Cliente)
 - Liberação imediata e previsível da memória.
 - Reduz risco de _memory leaks_ e inconsistências.
 - Melhora a performance e estabilidade do aplicativo.
+
+[Voltar ao início](#sumário)
+
+---
+
+<a name="dataWindow-object-reference"></a>
+## DataWindow Object Reference
+
+Em PowerScript, o uso frequente do _.Object_ em DataWindows ou DataStores para acessar e manipular valores pode causar degradação de desempenho. Isso ocorre porque o PowerBuilder precisa resolver dinamicamente o caminho completo do objeto a cada acesso, especialmente dentro de loops, o que consome mais memória e tempo de execução.
+
+### 🧠 Problemas causados
+
+- Redução de performance devido à resolução dinâmica de propriedades a cada chamada.
+- Maior consumo de memória e lentidão perceptível em loops ou grandes volumes de dados.
+- Código mais propenso a erros em tempo de execução, pois as referências via _.Object_ não são verificadas em tempo de compilação.
+- Dificulta manutenção e depuração, já que erros podem surgir apenas durante a execução.
+
+### 🛠️ Solução/Refatoração Recomendada
+
+Evitar o uso direto de _.Object_ sempre que possível. Prefira utilizar os métodos _GetItem()_ e _SetItem()_ para buscar ou definir valores nas colunas. Esses métodos são mais seguros, verificáveis e oferecem melhor desempenho, especialmente em operações repetitivas ou críticas.
+
+### 🔎 Exemplo com DataWindow Object Reference
+
+```pascal
+// --- Exemplo com problema de performance ---
+Integer li_Row
+Decimal lde_Total
+
+For li_Row = 1 To dw_Vendas.RowCount()
+	// Uso repetido de .Object em loop
+	lde_Total += dw_Vendas.Object.valor[li_Row] * dw_Vendas.Object.quantidade[li_Row]
+Next
+```
+
+Neste exemplo, cada acesso a _dw_Vendas.Object_ força o PowerBuilder a resolver o caminho do objeto dinamicamente, o que gera overhead em loops grandes.
+
+### ✨ Exemplo Refatorado
+
+```pascal
+// --- Exemplo otimizado usando GetItemNumber ---
+Integer li_Row
+Decimal lde_Total, lde_Preco, lde_Quantidade
+
+For li_Row = 1 To dw_Vendas.RowCount()
+	lde_Preco = dw_Vendas.GetItemNumber(li_Row, "preco")
+	lde_Quantidade = dw_Vendas.GetItemNumber(li_Row, "quantidade")
+	lde_Total += lde_Preco * lde_Quantidade
+Next
+```
+
+Agora, o código é mais eficiente e seguro. Os métodos _GetItemNumber()_ realizam acesso direto aos dados sem precisar resolver o caminho _.Object_ a cada iteração, reduzindo drasticamente o tempo de execução.
+
+### 📈 Benefícios da Refatoração
+
+- Aumento significativo de performance em loops e operações de massa.
+- Código mais limpo, seguro e fácil de manter.
+- Redução de falhas em tempo de execução (por exemplo, erros de nome de coluna).
+- Melhoria geral na estabilidade e previsibilidade do sistema.
 
 [Voltar ao início](#sumário)
 
