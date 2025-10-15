@@ -5,34 +5,36 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 
 ## Sumário
 
-1. [Long Parameter List](https://github.com/joaomello03/catalogo/blob/main/README.md#long-parameter-list)
-2. [Long Function](https://github.com/joaomello03/catalogo/blob/main/README.md#long-function)
-3. [Duplicated Code](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicated-code)
-4. [Large Class](https://github.com/joaomello03/catalogo/blob/main/README.md#large-class)
-5. [Feature Envy](https://github.com/joaomello03/catalogo/blob/main/README.md#feature-envy)
-6. [Message Chains](https://github.com/joaomello03/catalogo/blob/main/README.md#message-chains)
-7. [Shotgun Surgery](https://github.com/joaomello03/catalogo/blob/main/README.md#shotgun-surgery)
-8. [Primitive Obsession](https://github.com/joaomello03/catalogo/blob/main/README.md#primitive-obsession)
-9. [Data Class](https://github.com/joaomello03/catalogo/blob/main/README.md#data-class)
-10. [Repeated Switches](https://github.com/joaomello03/catalogo/blob/main/README.md#repeated-switches)
-11. [Overloaded Window Script](https://github.com/joaomello03/catalogo/blob/main/README.md#overloaded-window-script)
-12. [DataWindow Logic Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#datawindow-logic-smell)
-13. [Hardcoded Paths or Connection Strings](https://github.com/joaomello03/catalogo/blob/main/README.md#hardcoded-paths)
-14. [Unmanaged Object Lifetime](https://github.com/joaomello03/catalogo/blob/main/README.md#unmanaged-object-lifetime)
-15. [SQL Embedded in Script](https://github.com/joaomello03/catalogo/blob/main/README.md#sql-embedded-script)
-16. [Event Cascade Smell](https://github.com/joaomello03/catalogo/blob/main/README.md#event-cascade-smell)
-17. [Duplicate DataWindow Objects](https://github.com/joaomello03/catalogo/blob/main/README.md#duplicate-datawindow-objects)
-18. [Unused Event Scripts](https://github.com/joaomello03/catalogo/blob/main/README.md#unused-event-scripts)
-19. [Communication Object](https://github.com/joaomello03/catalogo/blob/main/README.md#communication-object)
-20. [Public Field](https://github.com/joaomello03/catalogo/blob/main/README.md#public-field)
-21. [GOTO Backward Jump](https://github.com/joaomello03/catalogo/blob/main/README.md#goto-backward-jump)
-22. [Improper Use of Destroy Function](https://github.com/joaomello03/catalogo/blob/main/README.md#improper-use-destroy)
-23. [DataWindow Object Reference](https://github.com/joaomello03/catalogo/blob/main/README.md#dataWindow-object-reference)
-24. [Modelo Exemplo](https://github.com/joaomello03/catalogo/blob/main/README.md#modelo-exemplo)
+### Traditional Code Smells
+1. [Long Parameter List](#long-parameter-list)
+2. [Long Function](#long-function)
+3. [Duplicated Code](#duplicated-code)
+4. [Large Class](#large-class)
+5. [Feature Envy](#feature-envy)
+6. [Message Chains](#message-chains)
+7. [Shotgun Surgery](#shotgun-surgery)
+8. [Primitive Obsession](#primitive-obsession)
+9. [Data Class](#data-class)
+10. [Repeated Switches](#repeated-switches)
+
+### PowerScript Specific Code Smells
+11. [Overloaded Window Script](#overloaded-window-script)
+12. [DataWindow Logic Smell](#datawindow-logic-smell)
+13. [Hardcoded Paths or Connection Strings](#hardcoded-paths)
+14. [Unmanaged Object Lifetime](#unmanaged-object-lifetime)
+15. [SQL Embedded in Script](#sql-embedded-script)
+16. [Event Cascade Smell](#event-cascade-smell)
+17. [Duplicate DataWindow Objects](#duplicate-datawindow-objects)
+18. [Unused Event Scripts](#unused-event-scripts)
+19. [Communication Object](#communication-object)
+20. [Public Field](#public-field)
+21. [GOTO Backward Jump](#goto-backward-jump)
+22. [Improper Use of Destroy Function](#improper-use-destroy)
+23. [DataWindow Object Reference](#datawindow-object-reference)
 
 ---
 
-<a name="LongParameterList"></a>
+<a id="long-parameter-list"></a>
 ## Long Parameter List
 
 Esse mau cheiro ocorre quando um método ou função recebe muitos parâmetros. Métodos com longas listas de parâmetros são difíceis de entender, propensos a erros (como a troca de ordem dos argumentos) e tornam a manutenção do código mais trabalhosa.
@@ -137,7 +139,7 @@ decimal valor = of_calcular_valor(produto)
 
 ---
 
-<a name="LongFunction"></a>
+<a id="long-function"></a>
 ## Long Function
 
 Esse mau cheiro ocorre quando uma função ou método realiza tarefas demais e possui muitas linhas de código. Em PowerScript, esse problema é muito comum em eventos de janelas (como _clicked, constructor, open_) ou funções que realizam múltiplas etapas de lógica de negócio e interface em um único bloco.
@@ -269,7 +271,7 @@ Cada responsabilidade agora está separada em funções coesas e reutilizáveis.
 
 ---
 
-<a name="duplicated-code"></a>
+<a id="duplicated-code"></a>
 ## Duplicated Code
 
 O **Duplicated Code** ocorre quando blocos de código idênticos ou muito semelhantes são replicados em diferentes partes da aplicação. No PowerScript, esse problema é comum em rotinas como manipulação de dados, formatações, cálculos ou validações que são implementadas repetidamente em múltiplos objetos, janelas ou componentes.
@@ -389,7 +391,7 @@ end function
 
 ---
 
-<a name="large-class"></a>
+<a id="large-class"></a>
 ## Large Class
 
 Ocorre quando uma classe (por exemplo, um _Non-Visual Object — NVO_) acumula **responsabilidades demais** ou contém **muitos métodos e atributos**.
@@ -539,7 +541,7 @@ Agora, o _n_Gerenciador_ atua apenas como coordenador, enquanto as classes menor
 
 ---
 
-<a name="feature-envy"></a>
+<a id="feature-envy"></a>
 ## Feature Envy
 
 Esse mau cheiro ocorre quando um método demonstra mais interesse nos dados de outro objeto do que nos dados da própria classe onde está implementado. Em vez de utilizar seus próprios atributos e comportamentos, ele acessa frequentemente métodos ou atributos de outro objeto, indicando que essa lógica provavelmente deveria estar na outra classe.
@@ -618,7 +620,7 @@ end function
 
 ---
 
-<a name="message-chains"></a>
+<a id="message-chains"></a>
 ## Message Chains
 
 Ocorre quando um objeto acessa uma longa cadeia de chamadas para alcançar outro objeto ou método, como _obj_a.of_get_b().of_get_c().of_get_d()_.
@@ -729,7 +731,7 @@ Agora, a janela conversa apenas com _n_Servico_Processar_, que oculta toda a del
 
 ---
 
-<a name="shotgun-surgery"></a>
+<a id="shotgun-surgery"></a>
 ## Shotgun Surgery
 
 Shotgun Surgery é um mau cheiro que ocorre quando uma única modificação no sistema exige alterações em vários locais diferentes do código. Isso geralmente acontece quando uma lógica ou regra de negócio está espalhada por múltiplas unidades, como janelas, objetos ou funções, dificultando a manutenção e aumentando o risco de erros.
@@ -804,7 +806,7 @@ lde_valortotal = uf_aplicar_desconto(lde_valortotal)
 
 ---
 
-<a name="primitive-obsession"></a>
+<a id="primitive-obsession"></a>
 ## Primitive Obsession
 
 Primitive Obsession é um mau cheiro de código que ocorre quando usamos tipos primitivos (_string, integer, decimal_, etc.) de forma excessiva ou inadequada, em vez de abstrações mais expressivas. Isso inclui:
@@ -909,7 +911,7 @@ end if
 
 ---
 
-<a name="data-class"></a>
+<a id="data-class"></a>
 ## Data Class
 
 Esse mau cheiro ocorre quando um objeto existe apenas para armazenar dados, sem conter nenhum comportamento associado. Em PowerScript, é comum vermos objetos que apenas agrupam campos, enquanto toda a lógica associada fica espalhada por outras partes do código.
@@ -991,7 +993,7 @@ sle_cpf.text = cliente.of_formatar_cpf()
 
 ---
 
-<a name="repeated-switches"></a>
+<a id="repeated-switches"></a>
 ## Repeated Switches
 
 Ocorre quando múltiplos blocos _CHOOSE CASE (ou IF...ELSE IF...)_ são usados repetidamente em diferentes partes do código para tomar decisões baseadas no mesmo tipo de valor. Essa repetição indica falta de abstração e torna o sistema mais difícil de manter e evoluir.
@@ -1125,11 +1127,7 @@ Adicionar uma nova operação agora requer apenas criar uma nova subclasse — s
 
 ---
 
-# [Específicos PowerScript]
-
----
-
-<a name="overloaded-window-script"></a>
+<a id="overloaded-window-script"></a>
 ## Overloaded Window Script
 
 Scripts de eventos (como _open, clicked, itemchanged_) acumulam muita lógica de negócio diretamente no objeto visual (_Window, UserObject, DataWindow Control_). Isso geralmente ocorre quando a lógica de persistência, validação ou processamento de dados é implementada dentro da própria janela, em vez de ser delegada a um objeto especializado.
@@ -1228,7 +1226,7 @@ end function
 
 ---
 
-<a name="datawindow-logic-smell"></a>
+<a id="datawindow-logic-smell"></a>
 ## DataWindow Logic Smell
 
 Regras de negócio, cálculos e validações implementadas diretamente em expressões, eventos ou triggers do **DataWindow** (como _itemchanged, itemfocuschanged_ ou expressões computadas). Esse tipo de implementação mistura lógica de domínio com a camada de apresentação dos dados.
@@ -1303,7 +1301,7 @@ end function
 
 ---
 
-<a name="hardcoded-paths"></a>
+<a id="hardcoded-paths"></a>
 ## Hardcoded Paths or Connection Strings
 
 Strings de conexão, caminhos de arquivos, diretórios e credenciais são definidos diretamente no código PowerScript. Esse tipo de implementação torna o sistema rígido, pouco configurável e vulnerável a falhas ou exposição de informações sensíveis.
@@ -1409,7 +1407,7 @@ LogPass=abcde
 
 ---
 
-<a name="unmanaged-object-lifetime"></a>
+<a id="unmanaged-object-lifetime"></a>
 ## Unmanaged Object Lifetime
 
 Criação de objetos, DataStores, DataWindows e outros recursos no PowerScript sem o devido controle de ciclo de vida (ou seja, sem um **DESTROY** correspondente). Isso gera vazamentos de memória, conexões abertas indevidamente e instabilidade da aplicação ao longo do tempo.
@@ -1493,7 +1491,7 @@ end function
 
 ---
 
-<a name="sql-embedded-script"></a>
+<a id="sql-embedded-script"></a>
 ## SQL Embedded in Script
 
 Instruções SQL podem ser escritas diretamente dentro dos scripts PowerScript (como eventos, botões ou funções em janelas). Essa prática mistura lógica de negócio com acesso a dados, reduz a reutilização e torna a manutenção do código mais complexa e propensa a erros.
@@ -1581,7 +1579,7 @@ end function
 
 ---
 
-<a name="event-cascade-smell"></a>
+<a id="event-cascade-smell"></a>
 ## Event Cascade Smell
 
 Ocorre quando um evento dispara outro evento de forma implícita ou encadeada, criando uma cadeia de execuções não controlada entre eventos (por exemplo, o evento _Clicked_ de um botão chama o evento _ItemChanged_ de um DataWindow, que por sua vez aciona outro evento).
@@ -1683,7 +1681,7 @@ Neste exemplo refatorado, o **fluxo é linear e previsível**: o evento _Clicked
 
 ---
 
-<a name="duplicate-datawindow-objects"></a>
+<a id="duplicate-datawindow-objects"></a>
 ## Duplicate DataWindow Objects
 
 Ocorre quando múltiplos objetos DataWindow diferentes implementam a mesma estrutura de dados, consulta SQL ou layout visual — geralmente com pequenas variações cosméticas.
@@ -1771,7 +1769,7 @@ Neste exemplo, todas as telas compartilham um único DataWindow base, parametriz
 
 ---
 
-<a name="unused-event-scripts"></a>
+<a id="unused-event-scripts"></a>
 ## Unused Event Scripts
 
 Ocorre quando eventos padrão ou personalizados (como _ue_validate, ue_refresh, Clicked, ItemChanged_, etc.) são declarados, mas nunca utilizados ou invocados no ciclo de execução da aplicação.
@@ -1869,11 +1867,7 @@ Neste exemplo refatorado, os eventos não utilizados foram removidos e sua lógi
 
 ---
 
-# [Novos]
-
----
-
-<a name="communication-bject"></a>
+<a id="communication-object"></a>
 ## Communication Object
 
 Ocorre quando o código utiliza objetos de comunicação legados do PowerBuilder, como _SOAP_ ou _INET_, para consumo de serviços externos.
@@ -1945,7 +1939,7 @@ O código refatorado é **mais seguro, legível e compatível**, utilizando o ob
 
 ---
 
-<a name="public-field"></a>
+<a id="public-field"></a>
 ## Public Field
 
 Esse mau cheiro ocorre quando variáveis de instância são declarados como **públicos**, permitindo que qualquer código externo leia e modifique diretamente o estado interno de um objeto (_Windows, UserObjects, Non-Visual Objects — NVOs_ etc.). Em PowerScript isso costuma aparecer quando usa-se _public:_ para variáveis que deveriam ser _private:_ ou _protected:_, quebrando o encapsulamento e tornando o comportamento do sistema imprevisível.
@@ -2031,7 +2025,8 @@ MessageBox("Cliente", "Nome: " + lnv_cliente.of_obter_nome() + "~r~nIdade: " + s
 [Voltar ao início](#sumário)
 
 ---
-<a name="goto-backward-jump"></a>
+
+<a id="goto-backward-jump"></a>
 ## GOTO Backward Jump
 
 O uso da instrução _GOTO_ para pular para uma linha anterior no código é um mau cheiro que deve ser evitado em PowerScript.
@@ -2100,7 +2095,7 @@ Neste exemplo, o loop _FOR_ substitui o salto manual com _GOTO_, tornando o cód
 
 ---
 
-<a name="improper-use-destroy"></a>
+<a id="improper-use-destroy"></a>
 ## Improper Use of Destroy Function
 
 Em PowerScript, o uso incorreto do _Destroy_ pode causar comportamento inconsistente na liberação de objetos.
@@ -2151,7 +2146,7 @@ Destroy(lnv_Cliente)
 
 ---
 
-<a name="dataWindow-object-reference"></a>
+<a id="datawindow-object-reference"></a>
 ## DataWindow Object Reference
 
 Em PowerScript, o uso frequente do _.Object_ em DataWindows ou DataStores para acessar e manipular valores pode causar degradação de desempenho. Isso ocorre porque o PowerBuilder precisa resolver dinamicamente o caminho completo do objeto a cada acesso, especialmente dentro de loops, o que consome mais memória e tempo de execução.
@@ -2204,23 +2199,6 @@ Agora, o código é mais eficiente e seguro. Os métodos _GetItemNumber()_ reali
 - Código mais limpo, seguro e fácil de manter.
 - Redução de falhas em tempo de execução (por exemplo, erros de nome de coluna).
 - Melhoria geral na estabilidade e previsibilidade do sistema.
-
-[Voltar ao início](#sumário)
-
----
-
-<a name="modelo-exemplo"></a>
-## Modelo Exemplo
-
-### 🧠 Problemas causados
-
-### 🛠️ Solução/Refatoração Recomendada
-
-### 🔎 Exemplo de Código com Modelo Exemplo
-
-### ✨ Exemplo Refatorado
-
-### 📈 Benefícios da Refatoração
 
 [Voltar ao início](#sumário)
 
