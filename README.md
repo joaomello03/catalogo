@@ -3,6 +3,20 @@
 
 Este catálogo apresenta e descreve os principais maus cheiros de código identificados em projetos desenvolvidos com a linguagem PowerScript. Seu objetivo é auxiliar desenvolvedores na detecção de padrões de código que podem indicar problemas de design, manutenção ou legibilidade, promovendo assim práticas mais eficientes e sustentáveis de desenvolvimento.
 
+O conteúdo está organizado em duas seções principais:
+- **Traditional Code Smells:** apresenta maus cheiros clássicos que também ocorrem em PowerScript, como _Long Parameter List_, _Duplicated Code_ e _Large Class_.
+- **PowerScript Specific Code Smells:** aborda problemas característicos da linguagem e de seu ambiente, como _Overloaded Window Script_, _DataWindow Logic Smell_ e _SQL Embedded in Script_.
+
+Cada mau cheiro é apresentado de forma padronizada, seguindo a estrutura:
+- **Nome do Code Smell** - breve definição e contexto do problema.
+- 🧠 **Problemas Causados** - lista dos principais impactos negativos na legibilidade, manutenção e desempenho.
+- 🛠️ **Solução/Refatoração Recomendada** - técnicas de refatoração aplicáveis, adaptadas à sintaxe e boas práticas do PowerScript.
+- 🔎 **Exemplo de Código** - trecho de código representando o problema.
+- ✨ **Exemplo de Refatoração** - código refatorado, demonstrando a aplicação prática da solução proposta.
+- 📈 **Benefícios da Refatoração** - resumo das melhorias obtidas com a refatoração, evidenciando ganhos em qualidade e manutenção.
+
+Essa estrutura visa facilitar a consulta e o uso prático do catálogo, permitindo que desenvolvedores identifiquem rapidamente o mau cheiro em seu código e compreendam o passo a passo da refatoração correspondente.
+
 ## Sumário
 
 ### Traditional Code Smells
@@ -40,7 +54,7 @@ Este catálogo apresenta e descreve os principais maus cheiros de código identi
 Esse mau cheiro ocorre quando um método ou função recebe muitos parâmetros. Métodos com longas listas de parâmetros são difíceis de entender, propensos a erros (como a troca de ordem dos argumentos) e tornam a manutenção do código mais trabalhosa.
 Em PowerScript, que tem forte foco em manipulação de dados e eventos, esse problema pode surgir facilmente.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Dificuldade de leitura e compreensão do método.
 - Risco de erro ao passar argumentos incorretos ou na ordem errada.
@@ -145,7 +159,7 @@ decimal valor = of_calcular_valor(produto)
 Esse mau cheiro ocorre quando uma função ou método realiza tarefas demais e possui muitas linhas de código. Em PowerScript, esse problema é muito comum em eventos de janelas (como _clicked, constructor, open_) ou funções que realizam múltiplas etapas de lógica de negócio e interface em um único bloco.
 Funções longas tendem a misturar níveis de abstração, como acesso a banco de dados, validações, lógica de interface e cálculos em um só lugar, dificultando a leitura, testes e manutenção.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Redução da legibilidade: difícil de entender o que a função realmente faz.
 - Dificuldade de reutilização: partes úteis do código ficam "presas" dentro da função.
@@ -278,7 +292,7 @@ O **Duplicated Code** ocorre quando blocos de código idênticos ou muito semelh
 
 Por exemplo, uma mesma regra de validação de CPF pode ser escrita tanto no cadastro de clientes quanto no cadastro de colaboradores, cada um em objetos distintos. Essa duplicação não apenas gera retrabalho, mas também compromete a manutenibilidade do sistema, dificulta a padronização e aumenta significativamente o risco de erros e inconsistências.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Manutenção trabalhosa e arriscada: alterações precisam ser feitas em vários pontos.
 - Risco de erros e inconsistências: regras evoluem de forma diferente em locais distintos.
@@ -399,7 +413,7 @@ Isso torna o código difícil de entender, manter e testar, já que a classe con
 
 Em PowerScript, é comum encontrar esse problema em _Non-Visual Objects — NVOs_ genéricos, que acabam se tornando “_classes deus_” (_God Objects_).
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Viola o **Princípio da Responsabilidade Única (SRP)**.
 - Dificulta a manutenção, pois qualquer mudança pode impactar múltiplas áreas.
@@ -548,7 +562,7 @@ Esse mau cheiro ocorre quando um método demonstra mais interesse nos dados de o
 
 No PowerScript, esse problema é comum em _Non-Visual Objects (NVOs)_ ou scripts de janelas, onde é comum ver métodos que manipulam diretamente os atributos de outros objetos, quebrando o encapsulamento e gerando dependências desnecessárias.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Quebra do encapsulamento, com acesso excessivo aos dados de outros objetos.
 - Alto acoplamento entre classes, tornando o código mais frágil e sensível a mudanças.
@@ -627,7 +641,7 @@ Ocorre quando um objeto acessa uma longa cadeia de chamadas para alcançar outro
 Esse padrão cria um forte **acoplamento entre classes** e viola a **Lei de Deméter** (“não fale com estranhos”).
 Em PowerScript, isso aparece com frequência quando uma janela ou DataWindow acessa diretamente métodos de objetos internos de serviços, controladores ou repositórios.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Excesso de acoplamento entre camadas (UI, serviço, repositório).
 - Viola o encapsulamento, expondo detalhes internos da hierarquia de objetos.
@@ -736,7 +750,7 @@ Agora, a janela conversa apenas com _n_Servico_Processar_, que oculta toda a del
 
 Shotgun Surgery é um mau cheiro que ocorre quando uma única modificação no sistema exige alterações em vários locais diferentes do código. Isso geralmente acontece quando uma lógica ou regra de negócio está espalhada por múltiplas unidades, como janelas, objetos ou funções, dificultando a manutenção e aumentando o risco de erros.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Alto custo de manutenção: pequenas mudanças exigem modificações em diversos pontos do sistema.
 - Maior propensão a erros: é fácil esquecer de atualizar algum local, resultando em inconsistências.
@@ -814,7 +828,7 @@ Primitive Obsession é um mau cheiro de código que ocorre quando usamos tipos p
 - Representar conceitos complexos com apenas uma string ou integer.
 - Repetir validações ou formatações em vários lugares para o mesmo tipo de dado.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Repetição de código: validações ou cálculos relacionados ao mesmo tipo de dado aparecem em vários pontos.
 - Dificuldade de manutenção: qualquer mudança no comportamento exige alterações em múltiplos lugares.
@@ -916,7 +930,7 @@ end if
 
 Esse mau cheiro ocorre quando um objeto existe apenas para armazenar dados, sem conter nenhum comportamento associado. Em PowerScript, é comum vermos objetos que apenas agrupam campos, enquanto toda a lógica associada fica espalhada por outras partes do código.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Falta de encapsulamento: os dados ficam expostos e são manipulados livremente fora do objeto.
 - Lógica dispersa: operações sobre os dados ficam espalhadas pelo sistema.
@@ -998,7 +1012,7 @@ sle_cpf.text = cliente.of_formatar_cpf()
 
 Ocorre quando múltiplos blocos _CHOOSE CASE (ou IF...ELSE IF...)_ são usados repetidamente em diferentes partes do código para tomar decisões baseadas no mesmo tipo de valor. Essa repetição indica falta de abstração e torna o sistema mais difícil de manter e evoluir.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Viola o princípio **DRY (Don’t Repeat Yourself)**.
 - Qualquer alteração na lógica exige modificar vários pontos do sistema.
@@ -1132,7 +1146,7 @@ Adicionar uma nova operação agora requer apenas criar uma nova subclasse — s
 
 Scripts de eventos (como _open, clicked, itemchanged_) acumulam muita lógica de negócio diretamente no objeto visual (_Window, UserObject, DataWindow Control_). Isso geralmente ocorre quando a lógica de persistência, validação ou processamento de dados é implementada dentro da própria janela, em vez de ser delegada a um objeto especializado.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Mistura de camadas (UI + lógica de negócio), tornando o código difícil de testar, reutilizar e manter.
 - Aumenta o acoplamento entre interface e regras de negócio.
@@ -1231,7 +1245,7 @@ end function
 
 Regras de negócio, cálculos e validações implementadas diretamente em expressões, eventos ou triggers do **DataWindow** (como _itemchanged, itemfocuschanged_ ou expressões computadas). Esse tipo de implementação mistura lógica de domínio com a camada de apresentação dos dados.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - A lógica fica “escondida” dentro do DataWindow, dificultando testes e manutenção.
 - Cada alteração exige abrir o designer do DataWindow, tornando o processo lento e arriscado.
@@ -1306,7 +1320,7 @@ end function
 
 Strings de conexão, caminhos de arquivos, diretórios e credenciais são definidos diretamente no código PowerScript. Esse tipo de implementação torna o sistema rígido, pouco configurável e vulnerável a falhas ou exposição de informações sensíveis.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Dificulta a manutenção, pois qualquer alteração exige recompilar e redistribuir a aplicação.
 - Viola boas práticas de segurança, expondo senhas e informações de ambiente.
@@ -1412,7 +1426,7 @@ LogPass=abcde
 
 Criação de objetos, DataStores, DataWindows e outros recursos no PowerScript sem o devido controle de ciclo de vida (ou seja, sem um **DESTROY** correspondente). Isso gera vazamentos de memória, conexões abertas indevidamente e instabilidade da aplicação ao longo do tempo.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Consumo de memória desnecessário, especialmente em aplicações longas ou com múltiplas janelas abertas.
 - Objetos permanecem em memória mesmo após o uso, degradando o desempenho.
@@ -1496,7 +1510,7 @@ end function
 
 Instruções SQL podem ser escritas diretamente dentro dos scripts PowerScript (como eventos, botões ou funções em janelas). Essa prática mistura lógica de negócio com acesso a dados, reduz a reutilização e torna a manutenção do código mais complexa e propensa a erros.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Dificulta a manutenção e evolução do sistema, pois instruções SQL estão espalhadas em vários scripts.
 - Viola o princípio de separação de responsabilidades (UI + lógica de banco).
@@ -1585,7 +1599,7 @@ end function
 Ocorre quando um evento dispara outro evento de forma implícita ou encadeada, criando uma cadeia de execuções não controlada entre eventos (por exemplo, o evento _Clicked_ de um botão chama o evento _ItemChanged_ de um DataWindow, que por sua vez aciona outro evento).
 Esse comportamento torna o fluxo de execução **difícil de entender, prever e depurar**.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - O fluxo de execução fica imprevisível, dificultando a identificação da origem de erros.
 - Um pequeno ajuste em um evento pode causar efeitos colaterais em várias partes da interface.
@@ -1687,7 +1701,7 @@ Neste exemplo refatorado, o **fluxo é linear e previsível**: o evento _Clicked
 Ocorre quando múltiplos objetos DataWindow diferentes implementam a mesma estrutura de dados, consulta SQL ou layout visual — geralmente com pequenas variações cosméticas.
 Essa duplicação aumenta o esforço de manutenção e causa inconsistências em relatórios, formulários e telas de consulta.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Alterações em uma consulta SQL exigem atualizar várias DataWindows semelhantes.
 - Aumenta o risco de inconsistência entre telas que exibem os mesmos dados.
@@ -1775,7 +1789,7 @@ Neste exemplo, todas as telas compartilham um único DataWindow base, parametriz
 Ocorre quando eventos padrão ou personalizados (como _ue_validate, ue_refresh, Clicked, ItemChanged_, etc.) são declarados, mas nunca utilizados ou invocados no ciclo de execução da aplicação.
 Esses scripts permanecem no código sem propósito, acumulando complexidade e confundindo o entendimento da lógica do sistema.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Polui o código com eventos inativos ou desatualizados.
 - Dificulta a leitura e manutenção, pois o desenvolvedor perde tempo analisando scripts que não são mais utilizados.
@@ -1873,7 +1887,7 @@ Neste exemplo refatorado, os eventos não utilizados foram removidos e sua lógi
 Ocorre quando o código utiliza objetos de comunicação legados do PowerBuilder, como _SOAP_ ou _INET_, para consumo de serviços externos.
 Esses objetos estão obsoletos e não são mais suportados em versões recentes do PowerBuilder, podendo causar instabilidade, falhas silenciosas e comportamento inesperado.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Instabilidade e erros imprevisíveis em tempo de execução.
 - Dificuldade de depuração e manutenção.
@@ -1944,7 +1958,7 @@ O código refatorado é **mais seguro, legível e compatível**, utilizando o ob
 
 Esse mau cheiro ocorre quando variáveis de instância são declarados como **públicos**, permitindo que qualquer código externo leia e modifique diretamente o estado interno de um objeto (_Windows, UserObjects, Non-Visual Objects — NVOs_ etc.). Em PowerScript isso costuma aparecer quando usa-se _public:_ para variáveis que deveriam ser _private:_ ou _protected:_, quebrando o encapsulamento e tornando o comportamento do sistema imprevisível.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Quebra do encapsulamento e violação do **Princípio da Responsabilidade Única (SRP)**.
 - Aumento do acoplamento entre componentes (outros objetos passam a depender do estado interno).
@@ -2033,7 +2047,7 @@ O uso da instrução _GOTO_ para pular para uma linha anterior no código é um 
 Esse tipo de salto cria fluxos de controle não estruturados, difíceis de entender e de manter, podendo causar confusão, loops infinitos e erros de lógica.
 Em vez disso, deve-se utilizar estruturas de controle como _FOR_, _WHILE_ ou sub-rotinas que tornem o código mais previsível e legível.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Gera fluxo de controle não estruturado (**spaghetti code**).
 - Dificulta depuração e leitura do código.
@@ -2101,7 +2115,7 @@ Neste exemplo, o loop _FOR_ substitui o salto manual com _GOTO_, tornando o cód
 Em PowerScript, o uso incorreto do _Destroy_ pode causar comportamento inconsistente na liberação de objetos.
 Enquanto _Destroy(lo_objeto)_ destrói o objeto **imediatamente**, a forma _Destroy lo_objeto_ pode **demorar** para executar, deixando o objeto temporariamente ativo na memória.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Possibilidade de vazamento de memória ou uso indevido de objetos já destruídos.
 - Inconsistência no momento em que os recursos são realmente liberados.
@@ -2151,7 +2165,7 @@ Destroy(lnv_Cliente)
 
 Em PowerScript, o uso frequente do _.Object_ em DataWindows ou DataStores para acessar e manipular valores pode causar degradação de desempenho. Isso ocorre porque o PowerBuilder precisa resolver dinamicamente o caminho completo do objeto a cada acesso, especialmente dentro de loops, o que consome mais memória e tempo de execução.
 
-### 🧠 Problemas causados
+### 🧠 Problemas Causados
 
 - Redução de performance devido à resolução dinâmica de propriedades a cada chamada.
 - Maior consumo de memória e lentidão perceptível em loops ou grandes volumes de dados.
