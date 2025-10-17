@@ -612,7 +612,7 @@ A solução é aplicar o **Move Method**, movendo a responsabilidade de gerar o 
 
 Criação do nome método na classe _nv_cliente_
 ```pascal
-public function string of_obter_nome_completo()
+public function string of_obter_nome_completo ()
 	Return is_Nome + " " + is_Sobrenome
 end function
 ```
@@ -1109,25 +1109,25 @@ end function
 
 ```pascal
 // --- Classe base: n_Operacao_Base ---
-public subroutine of_executar()
+public subroutine of_executar ()
 	// Método sobrescrito nas subclasses
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Venda ---
-public subroutine of_executar()
+public subroutine of_executar ()
 	MessageBox("Venda", "Processando venda...")
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Compra ---
-public subroutine of_executar()
+public subroutine of_executar ()
 	MessageBox("Compra", "Processando compra...")
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Estoque ---
-public subroutine of_executar()
+public subroutine of_executar ()
 	MessageBox("Estoque", "Atualizando estoque...")
 end subroutine
 ```
@@ -1288,6 +1288,7 @@ If dwo.Name = 'salario' Then
 	String ls_Classificacao
 
 	Create lnv_Funcionario
+
 	Try
 		ls_Classificacao = lnv_Funcionario.of_Definir_Classificacao(Decimal(Data))
 		dw_Funcionario.SetItem(Row, 'classificacao', ls_Classificacao)
@@ -1981,20 +1982,20 @@ Aplicar a refatoração **Encapsulate Field**: tornar os campos _private_ (ou _p
 ```pascal
 // --- Non-Visual Object — NVO com campos públicos ---
 public type n_cliente from nonvisualobject
-public string is_nome
-public integer ii_idade
-
-public subroutine of_definir_dados (string as_nome, integer ai_idade)
-    is_nome = as_nome
-    ii_idade = ai_idade
-end subroutine
+	Public String is_Nome
+	Public Integer ii_Idade
+	
+	public subroutine of_Definir_Dados (String as_Nome, Integer ai_Idade)
+	    is_Nome = as_Nome
+	    ii_Idade = ai_Idade
+	end subroutine
 end type
 
 // Uso em outro lugar
-n_cliente lnv_cliente
-lnv_cliente = create n_cliente
-lnv_cliente.is_nome = "Ana"        // Acesso direto — sem validação
-lnv_cliente.ii_idade = -5          // Valor inválido permitido
+n_Cliente lnv_Cliente
+lnv_Cliente = Create n_Cliente
+lnv_Cliente.is_Nome = "Ana"        // Acesso direto — sem validação
+lnv_Cliente.ii_Idade = -5          // Valor inválido permitido
 ```
 
 ### ✨ Exemplo Refatorado
@@ -2002,29 +2003,30 @@ lnv_cliente.ii_idade = -5          // Valor inválido permitido
 ```pascal
 // --- Non-Visual Object — NVO com encapsulamento ---
 public type n_cliente from nonvisualobject
-private string is_nome
-private integer ii_idade
+	Private String is_Nome
+	Private Integer ii_Idade
+	
+	public subroutine of_Definir_Dados (String as_Nome, Integer ai_Idade)
+	    // validação centralizada
+	    If Trim(as_Nome) = "" Then
+	        RAISE EXCEPTION CreateException("Nome é obrigatório.")
+	    End If
 
-public subroutine of_definir_dados (string as_nome, integer ai_idade)
-    // validação centralizada
-    IF Trim(as_nome) = "" THEN
-        RAISE EXCEPTION CreateException("Nome é obrigatório.")
-    END IF
-    IF ai_idade < 0 THEN
-        RAISE EXCEPTION CreateException("Idade inválida.")
-    END IF
-
-    is_nome = as_nome
-    ii_idade = ai_idade
-end subroutine
-
-public function string of_obter_nome()
-    return is_nome
-end function
-
-public function integer of_obter_idade()
-    return ii_idade
-end function
+	    If ai_Idade < 0 Then
+	        RAISE EXCEPTION CreateException("Idade inválida.")
+	    End If
+	
+	    is_Nome = as_Nome
+	    ii_Idade = ai_Idade
+	end subroutine
+	
+	public function string of_Obter_Nome ()
+	    Return is_Nome
+	end function
+	
+	public function integer of_Obter_Idade ()
+	    Return ii_Idade
+	end function
 end type
 
 // Uso seguro
