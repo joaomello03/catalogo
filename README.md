@@ -69,22 +69,22 @@ Dessa forma, o método recebe apenas um objeto, melhorando a clareza e a robuste
 ### 🔎 Exemplo de Código com Long Parameter List
 
 ```pascal
-function decimal of_calcular_valor(decimal preco, decimal desconto, integer quantidade, string tipoProduto, string metodoPagamento, decimal taxaAdicional)
-    decimal valor_final
-
-    valor_final = (preco - desconto) * quantidade
-
-    if lower(tipoProduto) = "promocional" then
-        valor_final = valor_final * 0.9
-    end if
-
-    if lower(metodoPagamento) = "pix" then
-        valor_final = valor_final * 0.97
-    end if
-
-    valor_final += taxaAdicional
-
-    return valor_final
+public function decimal of_calcular_valor (decimal ade_preco, decimal ade_desconto, integer ai_quantidade, string as_tipoproduto, string as_metodopagamento, decimal ade_taxaadicional)
+	Decimal lde_ValorFinal
+	
+	lde_ValorFinal = (ade_Preco - ade_Desconto) * ai_Quantidade
+	
+	If Lower(as_TipoProduto) = "promocional" Then
+		lde_ValorFinal = lde_ValorFinal * 0.9
+	End If
+	
+	If Lower(as_MetodoPagamento) = "pix" Then
+		lde_ValorFinal = lde_ValorFinal * 0.97
+	End If
+	
+	lde_ValorFinal += ade_TaxaAdicional
+	
+	Return lde_ValorFinal
 end function
 ```
 
@@ -100,46 +100,45 @@ global type info_produto from structure
     decimal preco
     decimal desconto
     integer quantidade
-    string tipoProduto
-    string metodoPagamento
-    decimal taxaAdicional
+    string tipoproduto
+    string metodopagamento
+    decimal taxaadicional
 end type
 ```
 
 2. Refatorar o método para receber a estrutura
 ```pascal
-// Método refatorado
-function decimal of_calcular_valor(info_produto produto)
-    decimal valor_final
-
-    valor_final = (produto.preco - produto.desconto) * produto.quantidade
-
-    if lower(produto.tipoProduto) = "promocional" then
-        valor_final = valor_final * 0.9
-    end if
-
-    if lower(produto.metodoPagamento) = "pix" then
-        valor_final = valor_final * 0.97
-    end if
-
-    valor_final += produto.taxaAdicional
-
-    return valor_final
+public function decimal of_calcular_valor (info_produto produto)
+	Decimal lde_ValorFinal
+	
+	lde_ValorFinal = (Produto.Preco - Produto.Desconto) * Produto.Quantidade
+	
+	If Lower(Produto.TipoProduto) = "promocional" Then
+		lde_ValorFinal = lde_ValorFinal * 0.9
+	End If
+	
+	If Lower(Produto.MetodoPagamento) = "pix" Then
+		lde_ValorFinal = lde_ValorFinal * 0.97
+	End If
+	
+	lde_ValorFinal += Produto.TaxaAdicional
+	
+	Return lde_ValorFinal
 end function
 ```
 
 3. Exemplo de chamada do método
 ```pascal
-Info_Produto produto
+Info_Produto Produto
 
-produto.preco = 100
-produto.desconto = 10
-produto.quantidade = 2
-produto.tipoProduto = "Promocional"
-produto.metodoPagamento = "PIX"
-produto.taxaAdicional = 1
+Produto.Preco = 100
+Produto.Desconto = 10
+Produto.Quantidade = 2
+Produto.TipoProduto = "promocional"
+Produto.MetodoPagamento = "pix"
+Produto.TaxaAdicional = 1
 
-decimal valor = of_calcular_valor(produto)
+Decimal lde_Valor = of_Calcular_Valor(Produto)
 ```
 
 ### 📈 Benefícios da Refatoração
@@ -178,39 +177,38 @@ Em PowerScript, pode-se criar _functions, object functions_, ou _user events_ pa
 ### 🔎 Exemplo de Código com Long Function
 
 ```pascal
-// Evento clicked de um botão com lógica excessiva
-subroutine clicked()
-    string nome
-    integer idade
-    decimal salario
-    decimal imposto
-
-    // Captura de dados
-    nome = sle_nome.text
-    idade = integer(sle_idade.text)
-    salario = decimal(sle_salario.text)
-
-    // Validação
-    if nome = "" or idade <= 0 or salario <= 0 then
-        messagebox("Erro", "Dados inválidos.")
-        return
-    end if
-
-    // Cálculo de imposto
-    if salario > 5000 then
-        imposto = salario * 0.2
-    else
-        imposto = salario * 0.1
-    end if
-
-    // Atualização do display
-    sle_resultado.text = "Imposto: " + string(imposto)
-
-    // Grava no banco
-    insert into funcionario
-        (nome, idade, salario, imposto)
-    values
-        (:nome, :idade, :salario, :imposto)
+// --- Evento clicked de um botão com lógica excessiva ---
+public subroutine clicked ()
+	String ls_Nome
+	Integer li_Idade
+	Decimal lde_Salario, lde_Imposto
+	
+	// Captura de dados
+	ls_Nome = sle_Nome.Text
+	li_Idade = Integer(sle_Idade.Text)
+	lde_Imposto = Decimal(sle_Dalario.Text)
+	
+	// Validação
+	If ls_Nome = "" Or li_Idade <= 0 Or lde_Imposto <= 0 Then
+		MessageBox("Erro", "Dados inválidos.")
+		Return
+	End If
+	
+	// Cálculo de imposto
+	If lde_Salario > 5000 Then
+		lde_Imposto = lde_Salario * 0.2
+	Else
+		lde_Imposto = lde_Salario * 0.1
+	End If
+	
+	// Atualização do display
+	sle_Resultado.Text = "Imposto: " + String(lde_Imposto)
+	
+	// Grava no banco
+	INSERT INTO FUNCIONARIO
+		(NOME, IDADE, SALARIO, IMPOSTO)
+	VALUES
+		(:ls_Nome, :li_Idade, :lde_Salario, :lde_Imposto)
 end subroutine
 ```
 
@@ -219,55 +217,56 @@ Função com múltiplas responsabilidades: captura de dados, validação, cálcu
 ### ✨ Exemplo de Refatoração Aplicando Extract Method
 
 ```pascal
-subroutine clicked()
-    string nome
-    integer idade
-    decimal salario
-
-    if not of_captura_dados(nome, idade, salario) then return
-    if not of_valida_dados(nome, idade, salario) then return
-
-    decimal imposto = of_calcula_imposto(salario)
-
-    of_exibe_resultado(imposto)
-    of_salva_dados(nome, idade, salario, imposto)
+// --- Evento clicked refatorado ---
+public subroutine clicked ()
+	String ls_Nome
+	Integer li_Idade
+	Decimal lde_Salario, lde_Imposto
+	
+	If Not of_Captura_Dados(ls_Nome, li_Idade, lde_Salario) Then Return
+	If Not of_Valida_Dados(ls_Nome, li_Idade, lde_Salario) Then Return
+	
+	lde_Imposto = of_Calcula_Imposto(lde_Salario)
+	
+	of_Exibe_Resultado(lde_Imposto)
+	of_Salva_Dados(ls_Nome, li_Idade, lde_Salario, lde_Imposto)
 end subroutine
 
-// Métodos auxiliares
-boolean function of_captura_dados(ref string nome, ref integer idade, ref decimal salario)
-    nome = sle_nome.text
-    idade = integer(sle_idade.text)
-    salario = decimal(sle_salario.text)
-
-    return true
+// --- Métodos auxiliares ---
+public function boolean of_captura_dados (ref string as_nome, ref integer ai_idade, ref decimal ade_salario)
+	as_Nome = sle_Nome.Text
+	ai_Idade = Integer(sle_Idade.Text)
+	ade_Imposto = Decimal(sle_Dalario.Text)
+	
+	Return True
 end function
 
-boolean function of_valida_dados(string nome, integer idade, decimal salario)
-    if nome = "" or idade <= 0 or salario <= 0 then
-        messagebox("Erro", "Dados inválidos.")
-        return false
-    end if
-
-    return true
+public function boolean of_valida_dados (string as_nome, integer ai_idade, decimal ade_salario)
+	If as_Nome = "" Or ai_Idade <= 0 Or ade_Salario <= 0 Then
+		MessageBox("Erro", "Dados inválidos.")
+		Return False
+	End If
+	
+	Return True
 end function
 
-decimal function of_calcula_imposto(decimal salario)
-    if salario > 5000 then
-        return salario * 0.2
-    else
-        return salario * 0.1
-    end if
+public function decimal of_calcula_imposto (decimal ade_salario)
+	If ade_Salario > 5000 Then
+		Return ade_Salario * 0.2
+	Else
+		Return ade_Salario * 0.1
+	End If
 end function
 
-subroutine of_exibe_resultado(decimal imposto)
-    sle_resultado.text = "Imposto: " + string(imposto)
+public subroutine of_exibe_resultado (decimal ade_imposto)
+	sle_Resultado.Text = "Imposto: " + String(ade_Imposto)
 end subroutine
 
-subroutine of_salva_dados(string nome, integer idade, decimal salario, decimal imposto)
-    insert into funcionario
-        (nome, idade, salario, imposto)
-    values
-        (:nome, :idade, :salario, :imposto)
+public subroutine of_salva_dados (string as_nome, integer ai_idade, decimal ade_salario, decimal ade_imposto)
+	INSERT INTO FUNCIONARIO
+		(NOME, IDADE, SALARIO, IMPOSTO)
+	VALUES
+		(:as_Nome, :ai_Idade, :ade_Salario, :ade_Imposto)
 end subroutine
 ```
 
@@ -308,33 +307,35 @@ A refatoração mais indicada para resolver esse problema é o **Extract Method*
 
 Código presente na tela de cadastro de clientes
 ```pascal
-public function boolean of_validar_dados ();String ls_CPF
-
-ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
-
-If Not IsNumber(ls_CPF) Or Len(Trim(ls_CPF)) <> 11 Then
-    MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
-    Return False
-End If
-
-Return True
+public function boolean of_validar_dados ()
+	String ls_CPF
+	
+	ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
+	
+	If Not IsNumber(ls_CPF) Or Len(Trim(ls_CPF)) <> 11 Then
+		MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
+		Return False
+	End If
+	
+	Return True
 end function
 ```
 
 Código presente na tela de cadastro de colaboradores
 ```pascal
-public function boolean of_validar_informacoes ();String ls_CPF
-
-ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
-ls_CPF = Replace(ls_CPF, '.', '')
-ls_CPF = Replace(ls_CPF, '-', '')
-
-If Len(ls_CPF) <> 11 Then
-    MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
-    Return False
-End If
-
-Return True
+public function boolean of_validar_informacoes ()
+	String ls_CPF
+	
+	ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
+	ls_CPF = Replace(ls_CPF, '.', '')
+	ls_CPF = Replace(ls_CPF, '-', '')
+	
+	If Len(ls_CPF) <> 11 Then
+		MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
+		Return False
+	End If
+	
+	Return True
 end function
 ```
 
@@ -346,50 +347,53 @@ Problemas causados:
 
 Criada uma função de validação de CPF em um objeto utilitário, por exemplo, _nv_dados_pessoais_
 ```pascal
-public function boolean of_validar_cpf (string as_cpf);String ls_CPF
-
-ls_CPF = as_CPF
-ls_CPF = Replace(ls_CPF, '.', '')
-ls_CPF = Replace(ls_CPF, '-', '')
-ls_CPF = Trim(ls_CPF)
-
-If Not IsNumber(ls_CPF) Or Len(ls_CPF) <> 11 Then
-    Return False
-End If
-
-Return True
+public function boolean of_validar_cpf (string as_cpf)
+	String ls_CPF
+	
+	ls_CPF = as_CPF
+	ls_CPF = Replace(ls_CPF, '.', '')
+	ls_CPF = Replace(ls_CPF, '-', '')
+	ls_CPF = Trim(ls_CPF)
+	
+	If Not IsNumber(ls_CPF) Or Len(ls_CPF) <> 11 Then
+		Return False
+	End If
+	
+	Return True
 end function
 ```
 
 Chamada da função de validação na tela de cadastro de clientes
 ```pascal
-public function boolean of_validar_dados ();String ls_CPF
-nv_Dados_Pessoais lnv_Dados_Pessoais
-
-ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
-
-If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
-    MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
-    Return False
-End If
-
-Return True
+public function boolean of_validar_dados ()
+	String ls_CPF
+	nv_Dados_Pessoais lnv_Dados_Pessoais
+	
+	ls_CPF = dw_Cliente.GetItemString(1, 'cliente_cpf')
+	
+	If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
+		MessageBox('Cadastro de Clientes', 'O CPF do cliente não é válido. Verifique!')
+		Return False
+	End If
+	
+	Return True
 end function
 ```
 
 Chamada da função de validação na tela de cadastro de colaboradores
 ```pascal
-public function boolean of_validar_informacoes ();String ls_CPF
-nv_Dados_Pessoais lnv_Dados_Pessoais
-
-ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
-
-If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
-    MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
-    Return False
-End If
-
-Return True
+public function boolean of_validar_informacoes ()
+	String ls_CPF
+	nv_Dados_Pessoais lnv_Dados_Pessoais
+	
+	ls_CPF = dw_Colaborador.GetItemString(1, 'colaborador_cpf')
+	
+	If Not lnv_Dados_Pessoais.of_Validar_CPF(ls_CPF) Then
+		MessageBox('Cadastro de Colaboradores', 'O CPF do colaborador não é válido. Verifique!')
+		Return False
+	End If
+	
+	Return True
 end function
 ```
 
@@ -434,13 +438,13 @@ Além disso, é possível aplicar **Move Method** para transferir lógicas diret
 // --- Non-Visual Object: n_Gerenciador ---
 // Exemplo de classe "inchada", com múltiplas responsabilidades
 
-public function integer of_Salvar_Cliente (DataWindow adw_Cliente)
+public function integer of_salvar_cliente (datawindow adw_cliente)
 	adw_Cliente.Update()
 	COMMIT USING SQLCA;
 	Return 1
 end function
 
-public function integer of_Gerar_Relatorio_Vendas ()
+public function integer of_gerar_relatorio_vendas ()
 	String ls_SQL
 
 	ls_SQL = "SELECT * FROM VENDAS WHERE DATA >= TODAY() - 30"
@@ -449,17 +453,17 @@ public function integer of_Gerar_Relatorio_Vendas ()
 	Return 1
 end function
 
-public function integer of_Enviar_Email (String as_Destinatario, String as_Mensagem)
+public function integer of_enviar_email (string as_destinatario, string as_mensagem)
 	// Simulação de envio de e-mail
 	MessageBox("E-mail enviado", "Para: " + as_Destinatario + "~r~nMensagem: " + as_Mensagem)
 	Return 1
 end function
 
-public function decimal of_Calcular_Desconto (Decimal ade_Valor, Integer ai_Percentual)
+public function decimal of_calcular_desconto (decimal ade_valor, integer ai_percentual)
 	Return ade_Valor - (ade_Valor * ai_Percentual / 100)
 end function
 
-public function integer of_Gerar_Backup ()
+public function integer of_gerar_backup ()
 	// Simulação de backup
 	MessageBox("Backup", "Backup concluído com sucesso.")
 	Return 1
@@ -472,7 +476,7 @@ Neste exemplo, _n_Gerenciador_ centraliza várias funções sem relação direta
 
 ```pascal
 // --- Non-Visual Object: n_Servico_Cliente ---
-public function integer of_Salvar_Cliente (DataWindow adw_Cliente)
+public function integer of_salvar_cliente (datawindow adw_cliente)
 	adw_Cliente.Update()
 	COMMIT USING SQLCA;
 	Return 1
@@ -481,7 +485,7 @@ end function
 
 ```pascal
 // --- Non-Visual Object: n_Servico_Vendas ---
-public function integer of_Gerar_Relatorio_Vendas ()
+public function integer of_gerar_relatorio_vendas ()
 	String ls_SQL
 
 	ls_SQL = "SELECT * FROM VENDAS WHERE DATA >= TODAY() - 30"
@@ -490,14 +494,14 @@ public function integer of_Gerar_Relatorio_Vendas ()
 	Return 1
 end function
 
-public function decimal of_Calcular_Desconto (Decimal ade_Valor, Integer ai_Percentual)
+public function decimal of_calcular_desconto (decimal ade_valor, integer ai_percentual)
 	Return ade_Valor - (ade_Valor * ai_Percentual / 100)
 end function
 ```
 
 ```pascal
 // --- Non-Visual Object: n_Servico_Email ---
-public function integer of_Enviar_Email (String as_Destinatario, String as_Mensagem)
+public function integer of_enviar_email (string as_destinatario, string as_mensagem)
 	// Simulação de envio de e-mail
 	MessageBox("E-mail enviado", "Para: " + as_Destinatario + "~r~nMensagem: " + as_Mensagem)
 	Return 1
@@ -506,7 +510,7 @@ end function
 
 ```pascal
 // --- Non-Visual Object: n_Servico_Backup ---
-public function integer of_Gerar_Backup ()
+public function integer of_gerar_backup ()
 	// Simulação de backup
 	MessageBox("Backup", "Backup concluído com sucesso.")
 	Return 1
@@ -517,12 +521,12 @@ end function
 // --- Non-Visual Object: n_Gerenciador (refatorado) ---
 // Centraliza a orquestração, delegando responsabilidades específicas
 
-n_Servico_Cliente    inv_Cliente
-n_Servico_Vendas     inv_Vendas
-n_Servico_Email      inv_Email
-n_Servico_Backup     inv_Backup
+n_Servico_Cliente inv_Cliente
+n_Servico_Vendas inv_Vendas
+n_Servico_Email inv_Email
+n_Servico_Backup inv_Backup
 
-public function integer of_Inicializar ()
+public function integer of_inicializar ()
 	Create inv_Cliente
 	Create inv_Vendas
 	Create inv_Email
@@ -531,7 +535,7 @@ public function integer of_Inicializar ()
 	Return 1
 end function
 
-public function integer of_Finalizar ()
+public function integer of_finalizar ()
 	Destroy inv_Cliente
 	Destroy inv_Vendas
 	Destroy inv_Email
@@ -583,19 +587,19 @@ Nesse exemplo, temos duas classes:
 Na classe _nv_cliente_ temos os atributos do cliente
 ```pascal
 global type nv_cliente from nonvisualobject
-	string is_nome
-	string is_sobrenome
+	String is_Nome
+	String is_Sobrenome
 end type
 ```
 
 Na classe _nv_relatorio_ temos uma função responsável por gerar o relatório com o nome completo do cliente
 ```pascal
-public function string of_gerar_relatorio_cliente (nv_cliente lnv_cliente)
-	string ls_nomecompleto
+public function string of_gerar_relatorio_cliente (nv_cliente anv_cliente)
+	String ls_Nomecompleto
 
-	ls_nomecompleto = lnv_cliente.is_nome + " " + lnv_cliente.is_sobrenome
+	ls_Nomecompleto = anv_Cliente.is_Nome + " " + anv_Cliente.is_Sobrenome
 
-	return "Relatório do Cliente: " + ls_nomecompleto
+	Return "Relatório do Cliente: " + ls_Nomecompleto
 end function
 ```
 
@@ -609,18 +613,18 @@ A solução é aplicar o **Move Method**, movendo a responsabilidade de gerar o 
 Criação do nome método na classe _nv_cliente_
 ```pascal
 public function string of_obter_nome_completo()
-	return is_nome + " " + is_sobrenome
+	Return is_Nome + " " + is_Sobrenome
 end function
 ```
 
 Classe _nv_relatorio_ refatorada, chamando o novo método da classe _nv_cliente_
 ```pascal
-public function string of_gerar_relatorio_cliente (nv_cliente lnv_cliente)
-	string ls_nomecompleto
+public function string of_gerar_relatorio_cliente (nv_cliente anv_cliente)
+	String ls_NomeCompleto
 
-	ls_nomecompleto = lnv_cliente.of_obter_nome_completo()
+	ls_NomeCompleto = anv_Cliente.of_Obter_Nome_Completo()
 
-	return "Relatório do Cliente: " + ls_nomecompleto
+	Return "Relatório do Cliente: " + ls_NomeCompleto
 end function
 ```
 
@@ -666,7 +670,7 @@ String ls_NomeCliente
 
 Create lnv_Processar
 
-// Cadeia longa de chamadas — viola a Lei de Deméter
+// Cadeia longa de chamadas - viola a Lei de Deméter
 ls_NomeCliente = lnv_Processar.of_Get_Servico_Vendas().of_Get_Repositorio_Cliente().of_Get_Cliente_Nome(sle_Id_Cliente.Text)
 
 MessageBox("Cliente", "Nome: " + ls_NomeCliente)
@@ -699,11 +703,11 @@ End Try
 // --- Non-Visual Object: n_Servico_Processar ---
 
 // Método criado para ocultar a delegação — aplica Hide Delegate
-public function string of_Obter_Nome_Cliente (Long al_IdCliente)
+public function string of_obter_nome_cliente (long al_idcliente)
 	Return of_Get_Servico_Vendas().of_Obter_Nome_Cliente(al_IdCliente)
 end function
 
-public function n_servico_vendas of_Get_Servico_Vendas ()
+public function n_servico_vendas of_get_servico_vendas ()
 	Return inv_Servico_Vendas
 end function
 ```
@@ -711,11 +715,11 @@ end function
 ```pascal
 // --- Non-Visual Object: n_Servico_Vendas ---
 
-public function string of_Obter_Nome_Cliente (Long al_IdCliente)
+public function string of_obter_nome_cliente (long al_idcliente)
 	Return of_Get_Repositorio_Cliente().of_Get_Cliente_Nome(al_IdCliente)
 end function
 
-public function n_repositorio_cliente of_Get_Repositorio_Cliente ()
+public function n_repositorio_cliente of_get_repositorio_cliente ()
 	Return inv_Repositorio_Cliente
 end function
 ```
@@ -723,7 +727,7 @@ end function
 ```pascal
 // --- Non-Visual Object: n_Repositorio_Cliente ---
 
-public function string of_Get_Cliente_Nome (Long al_IdCliente)
+public function string of_get_cliente_nome (long al_idcliente)
 	String ls_Nome
 
 	SELECT NOME INTO :ls_Nome FROM CLIENTE WHERE ID = :al_IdCliente USING SQLCA;
@@ -767,19 +771,19 @@ No contexto do PowerScript, isso pode ser feito por meio da criação de um obje
 
 ```pascal
 // Código presente na window 1
-if valor_total > 1000 then
-    valor_total = valor_total - (valor_total * 0.1)
-end if
+If lde_ValorTotal > 1000 Then
+	lde_ValorTotal = lde_ValorTotal - (lde_ValorTotal * 0.1)
+End If
 
 // Código presente na window 2
-if valor_total > 1000 then
-    valor_total = valor_total - (valor_total * 0.1)
-end if
+If lde_ValorTotal > 1000 Then
+	lde_ValorTotal = lde_ValorTotal - (lde_ValorTotal * 0.1)
+End If
 
 // Código presente na window 3
-if valor_total > 1000 then
-    valor_total = valor_total - (valor_total * 0.1)
-end if
+If lde_ValorTotal > 1000 Then
+	lde_ValorTotal = lde_ValorTotal - (lde_ValorTotal * 0.1)
+End If
 ```
 
 Problema: A lógica de desconto está duplicada em várias janelas. Se a regra mudar (por exemplo, alterar o valor mínimo para desconto ou a porcentagem), será necessário modificar cada local individualmente.
@@ -789,24 +793,24 @@ Problema: A lógica de desconto está duplicada em várias janelas. Se a regra m
 1. Criar um objeto do tipo Function
 ```pascal
 global function decimal uf_aplicar_desconto (ade_valortotal)
-    if ade_valortotal > 1000 then
-        return ade_valortotal - (ade_valortotal * 0.1)
-    end if
-    
-    return ade_valortotal
+	If ade_ValorTotal > 1000 Then
+		Return ade_ValorTotal - (ade_ValorTotal * 0.1)
+	End If
+	
+	Return ade_ValorTotal
 end function
 ```
 
 2. Usar a função nas janelas
 ```pascal
 // Código presente na window 1
-lde_valortotal = uf_aplicar_desconto(lde_valortotal)
+lde_ValorTotal = uf_Aplicar_desconto(lde_ValorTotal)
 
 // Código presente na window 2
-lde_valortotal = uf_aplicar_desconto(lde_valortotal)
+lde_ValorTotal = uf_Aplicar_desconto(lde_ValorTotal)
 
 // Código presente na window 3
-lde_valortotal = uf_aplicar_desconto(lde_valortotal)
+lde_ValorTotal = uf_Aplicar_desconto(lde_ValorTotal)
 ```
 
 ### 📈 Benefícios da Refatoração
@@ -843,14 +847,14 @@ Em PowerScript, use um _Non-Visual Object (NVO)_ ou para representar um conceito
 
 ```pascal
 // Função de verificação com múltiplos parâmetros primitivos
-public function boolean of_cadastrar_cliente(string nome, string email, string cpf, string telefone)
-    if nome = "" or pos(email, "@") = 0 or len(cpf) <> 11 then
-        return false
-    end if
-
-    ...
-
-    return true
+public function boolean of_cadastrar_cliente (string as_nome, string as_email, string as_cpf, string as_telefone)
+	If as_Nome = "" Or Pos(as_Email, "@") = 0 Or Len(as_CPF) <> 11 Then
+		Return False
+	End If
+	
+	...
+	
+	Return True
 end function
 ```
 
@@ -863,55 +867,57 @@ Problemas no exemplo acima:
 1. Criar um objeto _nv_cliente_
 ```pascal
 global type nv_cliente from nonvisualobject
-    string nome
-    string email
-    string cpf
-    string telefone
+    String is_Nome
+	String is_Email
+	String is_CPF
+	String is_Telefone
 
-    public function boolean of_validar()
-        if this.nome = "" then return false
-        if pos(this.email, "@") = 0 then return false
-        if len(this.cpf) <> 11 then return false
-
-        return true
+    public function boolean of_validar ()
+		If is_Nome = "" Then Return False
+		If Pos(is_Email, "@") = 0 Then Return False
+		If Len(is_CPF) <> 11 Then Return False
+		
+		Return True
     end function
 
-    public function string of_formatar_cpf()
-        if len(cpf) = 11 then
-            return mid(cpf,1,3)+"."+mid(cpf,4,3)+"."+mid(cpf,7,3)+"-"+mid(cpf,10,2)
-        end if
+    public function string of_formatar_cpf ()
+        If Len(is_CPF) = 11 Then
+            Return Mid(is_CPF,1,3)+"."+Mid(is_CPF,4,3)+"."+Mid(is_CPF,7,3)+"-"+Mid(is_CPF,10,2)
+      	End If
 
-        return cpf
+        Return as_CPF
     end function
 end object
 ```
 
 2. Refatorar a função de cadastro para usar o objeto
 ```pascal
-public function boolean of_cadastrar_cliente(nv_cliente cliente)
-    if not cliente.of_validar() then
-        return false
-    end if
+public function boolean of_cadastrar_cliente (nv_cliente anv_cliente)
+    If Not anv_Cliente.of_Validar() Then
+        Return False
+    End If
 
     ...
     
-    return true
+    Return True
 end function
 ```
 
 3. Uso no sistema
 ```pascal
-nv_cliente cliente
-cliente.nome = "João"
-cliente.email = "joao@email.com"
-cliente.cpf = "12345678901"
-cliente.telefone = "46999999999"
+nv_Cliente lnv_Cliente
+Boolean lb_Sucesso
 
-boolean sucesso = of_cadastrar_cliente(cliente)
+lnv_Cliente.is_Nome = "João"
+lnv_Cliente.is_Email = "joao@email.com"
+lnv_Cliente.is_CPF = "12345678901"
+lnv_Cliente.is_Telefone = "46999999999"
 
-if not sucesso then
-    messagebox("Erro", "Dados inválidos.")
-end if
+lb_Sucesso = of_Cadastrar_Cliente(lnv_Cliente)
+
+If Not lb_Sucesso Then
+	MessageBox("Erro", "Dados inválidos.")
+End If
 ```
 
 ### 📈 Benefícios da Refatoração
@@ -947,14 +953,14 @@ Aplicar a refatoração **Replace Data Value with Object**, que consistie em sub
 // Structure simples de cliente
 global type st_cliente from structure
     string nome
-    string email
-    string cpf
+	string email
+	string cpf
 end type
 
 // Uso em outro código
-if not of_validar_email(cliente.email) then
-    messagebox("Erro", "Email inválido")
-end if
+If Not of_Validar_Email(lst_Cliente.Email) Then
+	MessageBox("Erro", "Email inválido")
+End If
 ```
 
 Problema: a estrutura apenas armazena os dados. Toda a lógica fica fora dela.
@@ -964,37 +970,37 @@ Problema: a estrutura apenas armazena os dados. Toda a lógica fica fora dela.
 1. Criar um objeto com os dados e comportamentos
 ```pascal
 global type nv_cliente from nonvisualobject
-    string nome
-    string email
-    string cpf
+    String is_Nome
+    String is_Email
+    String is_CPF
 
-    public function boolean of_validar_email()
-        return pos(this.email, "@") > 0
+    public function boolean of_validar_email ()
+        Return Pos(is_Email, "@") > 0
     end function
 
-    public function string of_formatar_cpf()
-        if len(cpf) = 11 then
-            return mid(cpf,1,3)+"."+mid(cpf,4,3)+"."+mid(cpf,7,3)+"-"+mid(cpf,10,2)
-        end if
+    public function string of_formatar_cpf ()
+        If Len(is_CPF) = 11 Then
+            Return Mid(is_CPF,1,3)+"."+Mid(is_CPF,4,3)+"."+Mid(is_CPF,7,3)+"-"+Mid(is_CPF,10,2)
+        End If
         
-        return cpf
+        Return is_CPF
     end function
 end object
 ```
 
 2. Exemplo de uso
 ```pascal
-nv_cliente cliente
+nv_Cliente lnv_Cliente
 
-cliente.nome = "João"
-cliente.email = "joao@email.com"
-cliente.cpf = "12345678901"
+lnv_Cliente.is_Nome = "João"
+lnv_Cliente.is_Email = "joao@email.com"
+lnv_Cliente.is_CPF = "12345678901"
 
-if not cliente.of_validar_email() then
-    messagebox("Erro", "Email inválido")
-end if
+If Not lnv_Cliente.of_Validar_Email() Then
+    MessageBox("Erro", "Email inválido")
+End If
 
-sle_cpf.text = cliente.of_formatar_cpf()
+sle_CPF.Text = lnv_Cliente.of_Formatar_CPF()
 ```
 
 ### 📈 Benefícios da Refatoração
@@ -1073,7 +1079,7 @@ End Try
 ```pascal
 // --- Non-Visual Object: n_Operacao ---
 
-public function integer of_Executar_Operacao (String as_Tipo)
+public function integer of_executar_operacao (string as_tipo)
 	n_Operacao_Base lnv_Handler
 	lnv_Handler = of_Get_Handler(as_Tipo)
 	
@@ -1087,7 +1093,7 @@ public function integer of_Executar_Operacao (String as_Tipo)
 	Return 1
 end function
 
-private function n_operacao_base of_Get_Handler (String as_Tipo)
+private function n_operacao_base of_get_handler (string as_tipo)
 	Choose Case as_Tipo
 		Case "V"
 			Return Create n_Operacao_Venda
@@ -1103,25 +1109,25 @@ end function
 
 ```pascal
 // --- Classe base: n_Operacao_Base ---
-public subroutine of_Executar()
+public subroutine of_executar()
 	// Método sobrescrito nas subclasses
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Venda ---
-public subroutine of_Executar()
+public subroutine of_executar()
 	MessageBox("Venda", "Processando venda...")
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Compra ---
-public subroutine of_Executar()
+public subroutine of_executar()
 	MessageBox("Compra", "Processando compra...")
 end subroutine
 
 
 // --- Subclasse: n_Operacao_Estoque ---
-public subroutine of_Executar()
+public subroutine of_executar()
 	MessageBox("Estoque", "Atualizando estoque...")
 end subroutine
 ```
