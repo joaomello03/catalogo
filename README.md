@@ -41,10 +41,9 @@ Essa estrutura visa facilitar a consulta e o uso prático do catálogo, permitin
 17. [Duplicate DataWindow Objects](#duplicate-datawindow-objects)
 18. [Unused Event Scripts](#unused-event-scripts)
 19. [Communication Object](#communication-object)
-20. [Public Field](#public-field)
-21. [GOTO Backward Jump](#goto-backward-jump)
-22. [Improper Use of Destroy Function](#improper-use-destroy)
-23. [DataWindow Object Reference](#datawindow-object-reference)
+20. [GOTO Backward Jump](#goto-backward-jump)
+21. [Improper Use of Destroy Function](#improper-use-destroy)
+22. [DataWindow Object Reference](#datawindow-object-reference)
 
 ---
 
@@ -1955,94 +1954,6 @@ O código refatorado é **mais seguro, legível e compatível**, utilizando o ob
 - Melhora o tratamento de erros e a segurança nas chamadas HTTP.
 - Facilita o consumo de APIs REST modernas.
 - Reduz riscos de falhas e comportamento inesperado.
-
-[Voltar ao início](#sumário)
-
----
-
-<a id="public-field"></a>
-## Public Field
-
-Esse mau cheiro ocorre quando variáveis de instância são declarados como **públicos**, permitindo que qualquer código externo leia e modifique diretamente o estado interno de um objeto (_Windows, UserObjects, Non-Visual Objects — NVOs_ etc.). Em PowerScript isso costuma aparecer quando usa-se _public:_ para variáveis que deveriam ser _private:_ ou _protected:_, quebrando o encapsulamento e tornando o comportamento do sistema imprevisível.
-
-### 🧠 Problemas Causados
-
-- Quebra do encapsulamento e violação do **Princípio da Responsabilidade Única (SRP)**.
-- Aumento do acoplamento entre componentes (outros objetos passam a depender do estado interno).
-- Possibilidade de alterações indevidas no estado do objeto sem validação (efeitos colaterais).
-- Dificulta testes unitários e manutenção (validação espalhada pelo código).
-- Potencial risco de segurança e inconsistência de dados.
-
-### 🛠️ Solução/Refatoração Recomendada
-
-Aplicar a refatoração **Encapsulate Field**: tornar os campos _private_ (ou _protected_) e expor acesso controlado por métodos públicos ou por operações específicas que validem e normalizem os valores.
-
-### 🔎 Exemplo de Código com Public Field
-
-```pascal
-// --- Non-Visual Object — NVO com campos públicos ---
-public type n_cliente from nonvisualobject
-	Public String is_Nome
-	Public Integer ii_Idade
-	
-	public subroutine of_Definir_Dados (String as_Nome, Integer ai_Idade)
-	    is_Nome = as_Nome
-	    ii_Idade = ai_Idade
-	end subroutine
-end type
-
-// Uso em outro lugar
-n_Cliente lnv_Cliente
-lnv_Cliente = Create n_Cliente
-lnv_Cliente.is_Nome = "Ana"        // Acesso direto — sem validação
-lnv_Cliente.ii_Idade = -5          // Valor inválido permitido
-```
-
-### ✨ Exemplo Refatorado
-
-```pascal
-// --- Non-Visual Object — NVO com encapsulamento ---
-public type n_cliente from nonvisualobject
-	Private String is_Nome
-	Private Integer ii_Idade
-	
-	public subroutine of_Definir_Dados (String as_Nome, Integer ai_Idade)
-	    // validação centralizada
-	    If Trim(as_Nome) = "" Then
-	        RAISE EXCEPTION CreateException("Nome é obrigatório.")
-	    End If
-
-	    If ai_Idade < 0 Then
-	        RAISE EXCEPTION CreateException("Idade inválida.")
-	    End If
-	
-	    is_Nome = as_Nome
-	    ii_Idade = ai_Idade
-	end subroutine
-	
-	public function string of_Obter_Nome ()
-	    Return is_Nome
-	end function
-	
-	public function integer of_Obter_Idade ()
-	    Return ii_Idade
-	end function
-end type
-
-// Uso seguro
-n_cliente lnv_cliente
-lnv_cliente = create n_cliente
-lnv_cliente.of_definir_dados("Ana", 30)
-MessageBox("Cliente", "Nome: " + lnv_cliente.of_obter_nome() + "~r~nIdade: " + string(lnv_cliente.of_obter_idade()))
-```
-
-### 📈 Benefícios da Refatoração
-
-- Protege o estado interno do objeto e mantém invariantes.
-- Centraliza validações, evitando duplicação e comportamentos inconsistentes.
-- Reduz acoplamento e efeitos colaterais; facilita refatorações futuras.
-- Melhora a testabilidade e a previsibilidade do comportamento do sistema.
-- Aumenta a segurança e a robustez do código.
 
 [Voltar ao início](#sumário)
 
