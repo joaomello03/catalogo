@@ -1962,6 +1962,9 @@ O código refatorado é **mais seguro, legível e compatível**, utilizando o ob
 Em PowerScript, o uso incorreto do _Destroy_ pode causar comportamento inconsistente na liberação de objetos.
 Enquanto _Destroy(lo_objeto)_ destrói o objeto **imediatamente**, a forma _Destroy lo_objeto_ pode **demorar** para executar, deixando o objeto temporariamente ativo na memória.
 
+- _Destroy(lo_objeto)_ (função): destrói o objeto imediatamente, é a forma recomendada, pois garante liberação determinística.
+- _Destroy lo_objeto_ (comando): apenas agenda a destruição, o objeto pode continuar em memória até o _garbage collector_ interno do PowerBuilder atuar.
+
 ### 🧠 Problemas Causados
 
 - Possibilidade de vazamento de memória ou uso indevido de objetos já destruídos.
