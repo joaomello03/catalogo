@@ -185,10 +185,10 @@ public subroutine clicked ()
 	// Captura de dados
 	ls_Nome = sle_Nome.Text
 	li_Idade = Integer(sle_Idade.Text)
-	lde_Imposto = Decimal(sle_Dalario.Text)
+	lde_Salario = Decimal(sle_Salario.Text)
 	
 	// Validação
-	If ls_Nome = "" Or li_Idade <= 0 Or lde_Imposto <= 0 Then
+	If ls_Nome = "" Or li_Idade <= 0 Or lde_Salario <= 0 Then
 		MessageBox("Erro", "Dados inválidos.")
 		Return
 	End If
@@ -235,7 +235,7 @@ end subroutine
 public function boolean of_captura_dados (ref string as_nome, ref integer ai_idade, ref decimal ade_salario)
 	as_Nome = sle_Nome.Text
 	ai_Idade = Integer(sle_Idade.Text)
-	ade_Imposto = Decimal(sle_Dalario.Text)
+	ade_Salario = Decimal(sle_Salario.Text)
 	
 	Return True
 end function
@@ -535,10 +535,10 @@ public function integer of_inicializar ()
 end function
 
 public function integer of_finalizar ()
-	Destroy inv_Cliente
-	Destroy inv_Vendas
-	Destroy inv_Email
-	Destroy inv_Backup
+	Destroy(inv_Cliente)
+	Destroy(inv_Vendas)
+	Destroy(inv_Email)
+	Destroy(inv_Backup)
 
 	Return 1
 end function
@@ -674,7 +674,7 @@ ls_NomeCliente = lnv_Processar.of_Get_Servico_Vendas().of_Get_Repositorio_Client
 
 MessageBox("Cliente", "Nome: " + ls_NomeCliente)
 
-Destroy lnv_Processar
+Destroy(lnv_Processar)
 ```
 
 Neste caso, a janela conhece detalhes demais da estrutura interna do sistema (_serviço → repositório → cliente_). Qualquer mudança em um desses níveis obrigaria alterações na interface da janela.
@@ -694,7 +694,7 @@ Try
 	ls_NomeCliente = lnv_Processar.of_Obter_Nome_Cliente(sle_ID_Cliente.Text)
 	MessageBox("Cliente", "Nome: " + ls_NomeCliente)
 Finally
-	Destroy lnv_Processar
+	Destroy(lnv_Processar)
 End Try
 ```
 
@@ -1071,7 +1071,7 @@ Create lnv_Operacao
 Try
 	lnv_Operacao.of_Executar_Operacao(sle_Tipo.Text)
 Finally
-	Destroy lnv_Operacao
+	Destroy(lnv_Operacao)
 End Try
 ```
 
@@ -1088,7 +1088,7 @@ public function integer of_executar_operacao (string as_tipo)
 	End If
 	
 	lnv_Handler.of_Executar()
-	Destroy lnv_Handler
+	Destroy(lnv_Handler)
 	Return 1
 end function
 
@@ -1472,9 +1472,7 @@ Try
 	Create lnv_Relatorio
 	lnv_Relatorio.of_Gerar_Relatorio("mensal")
 Finally
-	If IsValid(lnv_Relatorio) Then
-		Destroy lnv_Relatorio
-	End If
+	If IsValid(lnv_Relatorio) Then Destroy(lnv_Relatorio)
 End Try
 ```
 
@@ -1565,7 +1563,7 @@ Try
 		MessageBox("Erro", "Falha ao atualizar pedido.")
 	End If
 Finally
-	Destroy lnv_Pedido
+	Destroy(lnv_Pedido)
 End Try
 ```
 
@@ -1652,7 +1650,7 @@ Create lnv_Dados
 Try
 	lnv_Dados.of_Salvar_Dados(dw_Dados)
 Finally
-	Destroy lnv_Dados
+	Destroy(lnv_Dados)
 End Try
 ```
 
@@ -1771,7 +1769,7 @@ Create lnv_Cliente
 Try
 	lnv_Cliente.of_Carregar_Clientes(dw_Clientes, "Ativo")
 Finally
-	Destroy lnv_Cliente
+	Destroy(lnv_Cliente)
 End Try
 ```
 
@@ -1827,7 +1825,7 @@ Create lnv_Cliente
 
 lnv_Cliente.of_Salvar_Cliente(dw_Dados)
 
-Destroy lnv_Cliente
+Destroy(lnv_Cliente)
 ```
 
 Neste exemplo, os eventos _ue_validate()_ e _ue_refresh()_ existem, mas nunca são chamados — nem por outros eventos, nem por código externo.
@@ -1846,7 +1844,7 @@ Try
 	lnv_Cliente.of_Salvar_Cliente(dw_Dados)
 	MessageBox("Sucesso", "Cliente salvo com sucesso.")
 Finally
-	Destroy lnv_Cliente
+	Destroy(lnv_Cliente)
 End Try
 ```
 
@@ -1858,7 +1856,7 @@ public function integer of_Validar_Cliente (DataWindow adw_Dados)
 
 	ll_Row = adw_Dados.GetRow()
 
-	If adw_Dados.GetItemString(ll_Row, "nome")) = "" Then
+	If adw_Dados.GetItemString(ll_Row, "nome") = "" Then
 		MessageBox("Erro", "O nome do cliente é obrigatório.")
 		Return -1
 	End If
@@ -1920,7 +1918,7 @@ li_Inet.RequestMethod = "GET"
 li_Inet.ConnectToServer("https://api.meuservico.com")
 ls_HTML = li_Inet.GetURL("https://api.meuservico.com/clientes")
 
-Destroy li_Inet
+Destroy(li_Inet)
 
 MessageBox("Resultado", ls_HTML)
 ```
@@ -1943,7 +1941,7 @@ Else
 	MessageBox("Erro", "Falha ao acessar o serviço.")
 End If
 
-Destroy lnv_Http
+Destroy(lnv_Http)
 ```
 
 O código refatorado é **mais seguro, legível e compatível**, utilizando o objeto _HttpClient_ que é nativo e plenamente suportado.
@@ -2049,24 +2047,28 @@ Evitar o uso de _Destroy lo_objeto_, que depende da execução posterior do _gar
 
 ```pascal
 n_Cliente lnv_Cliente
-lnv_Cliente = Create n_Cliente
 
-lnv_Cliente.of_Carregar_Dados()
-
-// Uso incorreto - destruição não imediata
-Destroy lnv_Cliente
+Try
+	lnv_Cliente = Create n_Cliente
+	lnv_Cliente.of_Carregar_Dados()
+Finally
+	// Uso incorreto - destruição não imediata
+	Destroy lnv_Cliente
+End Try
 ```
 
 ### ✨ Exemplo Refatorado
 
 ```pascal
 n_Cliente lnv_Cliente
-lnv_Cliente = Create n_Cliente
 
-lnv_Cliente.of_Carregar_Dados()
-
-// Uso correto - destruição imediata e segura
-Destroy(lnv_Cliente)
+Try
+	lnv_Cliente = Create n_Cliente
+	lnv_Cliente.of_Carregar_Dados()
+Finally
+	// Uso correto - destruição imediata e segura
+	Destroy(lnv_Cliente)
+End Try
 ```
 
 ### 📈 Benefícios da Refatoração
